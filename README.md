@@ -11,6 +11,7 @@ A Model Context Protocol (MCP) server that provides Twitter functionality using 
 - **Tweet Search**: Search for tweets with specific queries
 - **Tweet Management**: Post, like, and retweet tweets
 - **User Tweets**: Get tweets from specific users
+- **Direct Messaging**: Send DMs, get DM history, react to messages, and delete messages
 - **Authentication Testing**: Test cookies before use
 
 ## Disclaimer
@@ -150,6 +151,84 @@ Retweet a tweet by ID:
 }
 ```
 
+#### 8. Send Direct Message
+Send a direct message to a user.
+
+**Parameters:**
+- `recipient_username` (string): The username (without @) to send the message to (automatically converted to user_id internally)
+- `text` (string): The message content
+- `ct0` (string): Twitter ct0 cookie
+- `auth_token` (string): Twitter auth_token cookie
+
+```json
+{
+  "name": "send_dm",
+  "arguments": {
+    "recipient_username": "username",
+    "text": "Hello from MCP!",
+    "ct0": "your_ct0_token",
+    "auth_token": "your_auth_token"
+  }
+}
+```
+
+#### 9. Get DM History
+Get direct message history with a specific user.
+
+**Parameters:**
+- `recipient_username` (string): The username (without @) to get DM history with (automatically converted to user_id internally)
+- `count` (integer, optional): Number of messages to retrieve (default: 20, max: 100)
+- `ct0` (string): Twitter ct0 cookie  
+- `auth_token` (string): Twitter auth_token cookie
+
+```json
+{
+  "name": "get_dm_history", 
+  "arguments": {
+    "recipient_username": "username",
+    "count": 50,
+    "ct0": "your_ct0_token",
+    "auth_token": "your_auth_token"
+  }
+}
+```
+
+#### 10. React to Direct Message
+Add an emoji reaction to a direct message.
+
+**Parameters:**
+- `message_id` (string): The ID of the message to react to
+- `emoji` (string): The emoji to add (e.g., "👍", "❤️", "😀")
+- `conversation_id` (string): The conversation ID containing the message
+- `ct0` (string): Twitter ct0 cookie
+- `auth_token` (string): Twitter auth_token cookie
+
+```json
+{
+  "name": "add_reaction_to_message",
+  "arguments": {
+    "message_id": "message_id_here", 
+    "emoji": "👍",
+    "conversation_id": "conversation_id_here",
+    "ct0": "your_ct0_token",
+    "auth_token": "your_auth_token"
+  }
+}
+```
+
+#### 11. Delete Direct Message
+Delete a direct message:
+```json
+{
+  "tool": "delete_dm",
+  "arguments": {
+    "message_id": "1234567890123456789",
+    "ct0": "your_ct0_cookie_here",
+    "auth_token": "your_auth_token_cookie_here"
+  }
+}
+```
+
 ### Available Resources
 
 Resources can be accessed but require the `TWITTER_CT0` and `TWITTER_AUTH_TOKEN` environment variables as a fallback:
@@ -167,6 +246,11 @@ twitter://user-tweets#username
 #### 3. Search
 ```
 twitter://search#query
+```
+
+#### 4. DM History
+```
+twitter://dm-history#username
 ```
 
 ## Configuration

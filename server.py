@@ -61,6 +61,12 @@ class TwitterMCPServer:
                     name="Search Tweets",
                     description="Search for tweets (requires ct0 and auth_token)",
                     mimeType="application/json"
+                ),
+                Resource(
+                    uri="twitter://dm-history",
+                    name="DM History",
+                    description="Get direct message history with a user (requires ct0 and auth_token)",
+                    mimeType="application/json"
                 )
             ]
 
@@ -95,6 +101,11 @@ class TwitterMCPServer:
                 query = getattr(uri, 'fragment', None) or "python"
                 tweets = await self._search_tweets(client, query, product="Latest")
                 return json.dumps(tweets, indent=2)
+            elif path == "dm-history":
+                # Extract username from fragment if provided
+                username = getattr(uri, 'fragment', None) or "twitter"
+                dm_history = await self._get_dm_history(client, username)
+                return json.dumps(dm_history, indent=2)
             else:
                 raise ValueError(f"Unknown resource path: {path}")
 
@@ -293,6 +304,113 @@ class TwitterMCPServer:
                         },
                         "required": ["ct0", "auth_token"]
                     }
+                ),
+                Tool(
+                    name="send_dm",
+                    description="Send a direct message to a user",
+                    inputSchema={
+                        "type": "object",
+                        "properties": {
+                            "recipient_username": {
+                                "type": "string",
+                                "description": "The username (without @) of the recipient"
+                            },
+                            "text": {
+                                "type": "string",
+                                "description": "The message text to send"
+                            },
+                            "ct0": {
+                                "type": "string",
+                                "description": "Twitter ct0 cookie (required)"
+                            },
+                            "auth_token": {
+                                "type": "string",
+                                "description": "Twitter auth_token cookie (required)"
+                            }
+                        },
+                        "required": ["recipient_username", "text", "ct0", "auth_token"]
+                    }
+                ),
+                Tool(
+                    name="get_dm_history",
+                    description="Get direct message history with a user",
+                    inputSchema={
+                        "type": "object",
+                        "properties": {
+                            "recipient_username": {
+                                "type": "string",
+                                "description": "The username (without @) to get DM history with"
+                            },
+                            "count": {
+                                "type": "integer",
+                                "description": "Number of messages to return (default: 20)",
+                                "default": 20,
+                                "minimum": 1,
+                                "maximum": 100
+                            },
+                            "ct0": {
+                                "type": "string",
+                                "description": "Twitter ct0 cookie (required)"
+                            },
+                            "auth_token": {
+                                "type": "string",
+                                "description": "Twitter auth_token cookie (required)"
+                            }
+                        },
+                        "required": ["recipient_username", "ct0", "auth_token"]
+                    }
+                ),
+                Tool(
+                    name="add_reaction_to_message",
+                    description="Add a reaction (emoji) to a direct message",
+                    inputSchema={
+                        "type": "object",
+                        "properties": {
+                            "message_id": {
+                                "type": "string",
+                                "description": "The ID of the message to react to"
+                            },
+                            "emoji": {
+                                "type": "string",
+                                "description": "The emoji to react with (e.g., '❤️', '👍', '😂')"
+                            },
+                            "conversation_id": {
+                                "type": "string",
+                                "description": "The conversation ID"
+                            },
+                            "ct0": {
+                                "type": "string",
+                                "description": "Twitter ct0 cookie (required)"
+                            },
+                            "auth_token": {
+                                "type": "string",
+                                "description": "Twitter auth_token cookie (required)"
+                            }
+                        },
+                        "required": ["message_id", "emoji", "conversation_id", "ct0", "auth_token"]
+                    }
+                ),
+                Tool(
+                    name="delete_dm",
+                    description="Delete a direct message",
+                    inputSchema={
+                        "type": "object",
+                        "properties": {
+                            "message_id": {
+                                "type": "string",
+                                "description": "The ID of the message to delete"
+                            },
+                            "ct0": {
+                                "type": "string",
+                                "description": "Twitter ct0 cookie (required)"
+                            },
+                            "auth_token": {
+                                "type": "string",
+                                "description": "Twitter auth_token cookie (required)"
+                            }
+                        },
+                        "required": ["message_id", "ct0", "auth_token"]
+                    }
                 )
             ]
 
@@ -348,6 +466,23 @@ class TwitterMCPServer:
                 elif name == "retweet":
                     result = await self._retweet(client, arguments["tweet_id"])
                     return [types.TextContent(type="text", text=f"Tweet retweeted successfully: {json.dumps(result, indent=2)}")]
+                
+                elif name == "send_dm":
+                    result = await self._send_dm(client, arguments["recipient_username"], arguments["text"])
+                    return [types.TextContent(type="text", text=f"DM sent successfully: {json.dumps(result, indent=2)}")]
+                
+                elif name == "get_dm_history":
+                    count = arguments.get("count", 20)
+                    result = await self._get_dm_history(client, arguments["recipient_username"], count)
+                    return [types.TextContent(type="text", text=json.dumps(result, indent=2))]
+                
+                elif name == "add_reaction_to_message":
+                    result = await self._add_reaction_to_message(client, arguments["message_id"], arguments["emoji"], arguments["conversation_id"])
+                    return [types.TextContent(type="text", text=f"Reaction added successfully: {json.dumps(result, indent=2)}")]
+                
+                elif name == "delete_dm":
+                    result = await self._delete_dm(client, arguments["message_id"])
+                    return [types.TextContent(type="text", text=f"DM deleted successfully: {json.dumps(result, indent=2)}")]
                 
                 else:
                     raise ValueError(f"Unknown tool: {name}")
@@ -510,6 +645,61 @@ class TwitterMCPServer:
             }
             for tweet in tweets
         ]
+
+    async def _send_dm(self, client: Client, recipient_username: str, text: str) -> Dict[str, Any]:
+        """Send a direct message to a user"""
+        # First get the user_id from the username
+        user = await client.get_user_by_screen_name(recipient_username)
+        user_id = user.id
+        
+        result = await client.send_dm(user_id, text)
+        return {
+            "success": True,
+            "recipient_username": recipient_username,
+            "recipient_user_id": user_id,
+            "text": text,
+            "message_id": result.id,
+            "created_at": str(result.time)
+        }
+
+    async def _get_dm_history(self, client: Client, recipient_username: str, count: int = 20) -> List[Dict[str, Any]]:
+        """Get direct message history with a user"""
+        # First get the user_id from the username
+        user = await client.get_user_by_screen_name(recipient_username)
+        user_id = user.id
+        
+        result = await client.get_dm_history(user_id)
+        messages = []
+        for i, message in enumerate(result):
+            if i >= count:  # Limit to requested count
+                break
+            messages.append({
+                "id": message.id,
+                "text": message.text,
+                "time": str(message.time),
+                "sender_id": getattr(message, 'sender_id', None),
+                "recipient_id": getattr(message, 'recipient_id', None),
+                "attachment": getattr(message, 'attachment', None)
+            })
+        return messages
+
+    async def _add_reaction_to_message(self, client: Client, message_id: str, emoji: str, conversation_id: str) -> Dict[str, Any]:
+        """Add a reaction (emoji) to a direct message"""
+        result = await client.add_reaction_to_message(message_id, conversation_id, emoji)
+        return {
+            "success": True,
+            "message_id": message_id,
+            "emoji": emoji,
+            "conversation_id": conversation_id
+        }
+
+    async def _delete_dm(self, client: Client, message_id: str) -> Dict[str, Any]:
+        """Delete a direct message"""
+        result = await client.delete_dm(message_id)
+        return {
+            "success": True,
+            "message_id": message_id
+        }
 
     async def run(self):
         """Run the MCP server"""
