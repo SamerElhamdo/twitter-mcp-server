@@ -91,9 +91,9 @@ class TwitterMCPServer:
                 tweets = await self._get_user_tweets(client, username)
                 return json.dumps(tweets, indent=2)
             elif path == "search":
-                # Extract query from fragment if provided
+                # Extract query from fragment if provided, use 'Latest' product by default
                 query = getattr(uri, 'fragment', None) or "python"
-                tweets = await self._search_tweets(client, query)
+                tweets = await self._search_tweets(client, query, product="Latest")
                 return json.dumps(tweets, indent=2)
             else:
                 raise ValueError(f"Unknown resource path: {path}")
@@ -163,6 +163,12 @@ class TwitterMCPServer:
                                 "default": 20,
                                 "minimum": 1,
                                 "maximum": 100
+                            },
+                            "product": {
+                                "type": "string",
+                                "description": "Type of results to return (e.g., 'Top' or 'Latest')",
+                                "enum": ["Top", "Latest"],
+                                "default": "Latest"
                             },
                             "ct0": {
                                 "type": "string",
@@ -317,7 +323,12 @@ class TwitterMCPServer:
                 
                 elif name == "search_tweets":
                     count = arguments.get("count", 20)
-                    result = await self._search_tweets(client, arguments["query"], count)
+                    product = arguments.get("product", "Latest")
+                    # Ensure the product value is only 'Top' or 'Latest'
+                    if product not in ("Top", "Latest"):
+                        product = "Latest"
+                    
+                    result = await self._search_tweets(client, arguments["query"], count, product)
                     return [types.TextContent(type="text", text=json.dumps(result, indent=2))]
                 
                 elif name == "get_timeline":
@@ -419,9 +430,9 @@ class TwitterMCPServer:
             "created_at": str(user.created_at)
         }
 
-    async def _search_tweets(self, client: Client, query: str, count: int = 20) -> List[Dict[str, Any]]:
+    async def _search_tweets(self, client: Client, query: str, count: int = 20, product: str = "Latest") -> List[Dict[str, Any]]:
         """Search for tweets"""
-        tweets = await client.search_tweet(query, count=count)
+        tweets = await client.search_tweet(query, product=product, count=count)
         return [
             {
                 "id": tweet.id,
