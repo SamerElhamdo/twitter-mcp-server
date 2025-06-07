@@ -13,6 +13,9 @@ A Model Context Protocol (MCP) server that provides Twitter functionality using 
 - **User Tweets**: Get tweets from specific users
 - **Direct Messaging**: Send DMs, get DM history, react to messages, and delete messages
 - **Authentication Testing**: Test cookies before use
+- **Tweet Operations**: Post tweets, like/unlike tweets, retweet/delete retweets, bookmark tweets
+- **Tweet Retrieval**: Get tweets by ID, search tweets, get user timelines, get tweet replies
+- **User Operations**: Follow/unfollow users, get user information, search users
 
 ## Disclaimer
 
@@ -229,113 +232,27 @@ Delete a direct message:
 }
 ```
 
+#### **get_tweet_replies**
+Get replies to a specific tweet.
+
+**Parameters:**
+- `tweet_id` (string): The ID of the tweet to get replies for
+- `count` (integer, optional): Number of replies to retrieve (default: 20)
+- `ct0` (string): Twitter ct0 cookie
+- `auth_token` (string): Twitter auth_token cookie
+
+```json
+{
+  "name": "get_tweet_replies",
+  "arguments": {
+    "tweet_id": "1234567890",
+    "count": 10,
+    "ct0": "your_ct0_token",
+    "auth_token": "your_auth_token"
+  }
+}
+```
+
 ### Available Resources
 
-Resources can be accessed but require the `TWITTER_CT0` and `TWITTER_AUTH_TOKEN` environment variables as a fallback:
-
-#### 1. Timeline
-```
-twitter://timeline
-```
-
-#### 2. User Tweets
-```
-twitter://user-tweets#username
-```
-
-#### 3. Search
-```
-twitter://search#query
-```
-
-#### 4. DM History
-```
-twitter://dm-history#username
-```
-
-## Configuration
-
-### Environment Variables (Optional)
-
-- `TWITTER_CT0`: Default Twitter ct0 cookie (optional, used for resources only)
-- `TWITTER_AUTH_TOKEN`: Default Twitter auth_token cookie (optional, used for resources only)
-
-### Session Management
-
-The server automatically caches authenticated sessions per `ct0` cookie to avoid repeated authentication and improve performance.
-
-## Security Features
-
-- **Cookie Caching**: Sessions are cached using ct0 as the key
-- **Session Isolation**: Each set of cookies gets its own session cache
-- **Direct Cookie Usage**: Cookies are used directly without modification
-- **Automatic Validation**: Cookies are tested on first use
-
-## Error Handling
-
-The server includes comprehensive error handling for:
-- Authentication failures
-- Invalid cookies
-- Rate limiting
-- Network errors
-- Invalid requests
-
-## Rate Limiting
-
-Twitter has rate limits for API requests. The server will handle rate limiting gracefully, but be mindful of:
-- Search: 300 requests per 15 minutes
-- Timeline: 300 requests per 15 minutes
-- User lookup: 300 requests per 15 minutes
-- Tweet posting: 300 tweets per 3 hours
-
-## Security Notes
-
-1. **Cookie Security**: Cookies are cached temporarily for performance but not persisted to disk
-2. **Session Caching**: Sessions are cached with ct0 as the key
-3. **Automatic Testing**: Cookies are validated on first use
-4. **Per-session Isolation**: Each ct0 maintains its own session
-
-## Troubleshooting
-
-### Authentication Issues
-- Use the `authenticate` tool to test cookies before other operations
-- Ensure both `ct0` and `auth_token` cookies are valid and not expired
-- Check that the cookies are from the correct Twitter/X domain
-- Make sure you're logged into Twitter in the browser where you copied the cookies
-
-### Rate Limiting
-- Reduce the frequency of requests
-- The server respects Twitter's rate limits automatically
-- Monitor usage across different cookie sets
-
-### Network Issues
-- Check your internet connection
-- Verify Twitter's service status
-- Ensure no firewall is blocking the requests
-
-## Dependencies
-
-- `mcp`: Model Context Protocol implementation
-- `twikit`: Twitter API client library  
-- `pydantic`: Data validation library
-- `python-dotenv`: Environment variable management
-- `asyncio`: Asynchronous programming support
-
-## License
-
-MIT License - see LICENSE file for details.
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
-
-## Support
-
-For issues and questions:
-1. Check the troubleshooting section
-2. Search existing issues
-3. Create a new issue with detailed information 
+Resources can be accessed but require the `TWITTER_CT0`

@@ -411,6 +411,33 @@ class TwitterMCPServer:
                         },
                         "required": ["message_id", "ct0", "auth_token"]
                     }
+                ),
+                Tool(
+                    name="get_tweet_replies",
+                    description="Get replies to a specific tweet",
+                    inputSchema={
+                        "type": "object",
+                        "properties": {
+                            "tweet_id": {
+                                "type": "string",
+                                "description": "The ID of the tweet to get replies for"
+                            },
+                            "count": {
+                                "type": "integer",
+                                "description": "Number of replies to retrieve (default: 20)",
+                                "default": 20
+                            },
+                            "ct0": {
+                                "type": "string",
+                                "description": "Twitter ct0 cookie (required)"
+                            },
+                            "auth_token": {
+                                "type": "string",
+                                "description": "Twitter auth_token cookie (required)"
+                            }
+                        },
+                        "required": ["tweet_id", "ct0", "auth_token"]
+                    }
                 )
             ]
 
@@ -483,6 +510,11 @@ class TwitterMCPServer:
                 elif name == "delete_dm":
                     result = await self._delete_dm(client, arguments["message_id"])
                     return [types.TextContent(type="text", text=f"DM deleted successfully: {json.dumps(result, indent=2)}")]
+                
+                elif name == "get_tweet_replies":
+                    count = arguments.get("count", 20)
+                    result = await self._get_tweet_replies(client, arguments["tweet_id"], count)
+                    return [types.TextContent(type="text", text=json.dumps(result, indent=2))]
                 
                 else:
                     raise ValueError(f"Unknown tool: {name}")
@@ -700,6 +732,53 @@ class TwitterMCPServer:
             "success": True,
             "message_id": message_id
         }
+
+    async def _get_tweet_replies(self, client: Client, tweet_id: str, count: int = 20) -> List[Dict[str, Any]]:
+        """Get replies to a specific tweet"""
+        try:
+            # Get the tweet by ID, which should include replies
+            tweet = await client.get_tweet_by_id(tweet_id)
+            
+            if not tweet:
+                return {"error": "Tweet not found"}
+            
+            replies_data = []
+            
+            # Check if tweet has replies attribute and it's not None
+            if hasattr(tweet, 'replies') and tweet.replies is not None:
+                # The replies attribute should be a Result object that we can iterate over
+                reply_count = 0
+                for reply in tweet.replies:
+                    if reply_count >= count:
+                        break
+                    
+                    replies_data.append({
+                        "id": reply.id,
+                        "text": reply.text,
+                        "author_id": reply.user.id,
+                        "author_username": reply.user.screen_name,
+                        "author_name": reply.user.name,
+                        "created_at": reply.created_at,
+                        "reply_count": reply.reply_count,
+                        "retweet_count": reply.retweet_count,
+                        "favorite_count": reply.favorite_count,
+                        "in_reply_to": reply.in_reply_to
+                    })
+                    reply_count += 1
+            
+            return {
+                "original_tweet": {
+                    "id": tweet.id,
+                    "text": tweet.text,
+                    "author": tweet.user.screen_name,
+                    "reply_count": tweet.reply_count
+                },
+                "replies": replies_data,
+                "total_replies_retrieved": len(replies_data)
+            }
+            
+        except Exception as e:
+            return {"error": f"Failed to get tweet replies: {str(e)}"}
 
     async def run(self):
         """Run the MCP server"""
