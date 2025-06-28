@@ -438,6 +438,37 @@ class TwitterMCPServer:
                         },
                         "required": ["tweet_id", "ct0", "auth_token"]
                     }
+                ),
+                Tool(
+                    name="get_trends",
+                    description="Get trending topics on Twitter",
+                    inputSchema={
+                        "type": "object",
+                        "properties": {
+                            "category": {
+                                "type": "string",
+                                "description": "The category of trends to retrieve",
+                                "enum": ["trending", "for-you", "news", "sports", "entertainment"],
+                                "default": "trending"
+                            },
+                            "count": {
+                                "type": "integer",
+                                "description": "Number of trends to retrieve (default: 20)",
+                                "default": 20,
+                                "minimum": 1,
+                                "maximum": 50
+                            },
+                            "ct0": {
+                                "type": "string",
+                                "description": "Twitter ct0 cookie (required)"
+                            },
+                            "auth_token": {
+                                "type": "string",
+                                "description": "Twitter auth_token cookie (required)"
+                            }
+                        },
+                        "required": ["ct0", "auth_token"]
+                    }
                 )
             ]
 
@@ -514,6 +545,12 @@ class TwitterMCPServer:
                 elif name == "get_tweet_replies":
                     count = arguments.get("count", 20)
                     result = await self._get_tweet_replies(client, arguments["tweet_id"], count)
+                    return [types.TextContent(type="text", text=json.dumps(result, indent=2))]
+                
+                elif name == "get_trends":
+                    category = arguments.get("category", "trending")
+                    count = arguments.get("count", 20)
+                    result = await self._get_trends(client, category, count)
                     return [types.TextContent(type="text", text=json.dumps(result, indent=2))]
                 
                 else:
@@ -779,6 +816,19 @@ class TwitterMCPServer:
             
         except Exception as e:
             return {"error": f"Failed to get tweet replies: {str(e)}"}
+
+    async def _get_trends(self, client: Client, category: str, count: int) -> List[Dict[str, Any]]:
+        """Get trending topics on Twitter"""
+        trends = await client.get_trends(category, count)
+        return [
+            {
+                "name": trend.name,
+                "tweets_count": trend.tweets_count,
+                "domain_context": trend.domain_context,
+                "grouped_trends": trend.grouped_trends
+            }
+            for trend in trends
+        ]
 
     async def run(self):
         """Run the MCP server"""

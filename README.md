@@ -16,6 +16,7 @@ A Model Context Protocol (MCP) server that provides Twitter functionality using 
 - **Tweet Operations**: Post tweets, like/unlike tweets, retweet/delete retweets, bookmark tweets
 - **Tweet Retrieval**: Get tweets by ID, search tweets, get user timelines, get tweet replies
 - **User Operations**: Follow/unfollow users, get user information, search users
+- **Trending Topics**: Get trending topics across different categories (trending, news, sports, entertainment, for-you)
 
 ## Disclaimer
 
@@ -248,6 +249,61 @@ Get replies to a specific tweet.
     "tweet_id": "1234567890",
     "count": 10,
     "ct0": "your_ct0_token",
+    "auth_token": "your_auth_token"
+  }
+}
+```
+
+#### **get_trends**
+Get trending topics on Twitter.
+
+**Parameters:**
+- `category` (string, optional): The category of trends to retrieve (default: "trending")
+  - Options: `"trending"`, `"for-you"`, `"news"`, `"sports"`, `"entertainment"`
+- `count` (integer, optional): Number of trends to retrieve (default: 20, max: 50)
+- `ct0` (string): Twitter ct0 cookie
+- `auth_token` (string): Twitter auth_token cookie
+
+```json
+{
+  "name": "get_trends",
+  "arguments": {
+    "category": "trending",
+    "count": 20,
+    "ct0": "your_ct0_token",
+    "auth_token": "your_auth_token"
+  }
+}
+```
+
+**Examples:**
+```json
+// Get general trending topics
+{
+  "name": "get_trends",
+  "arguments": {
+    "ct0": "your_ct0_token",
+    "auth_token": "your_auth_token"
+  }
+}
+
+// Get sports trends
+{
+  "name": "get_trends", 
+  "arguments": {
+    "category": "sports",
+    "count": 10,
+    "ct0": "your_ct0_token",
+    "auth_token": "your_auth_token"
+  }
+}
+
+// Get personalized trends
+{
+  "name": "get_trends",
+  "arguments": {
+    "category": "for-you",
+    "ct0": "your_ct0_token", 
     "auth_token": "your_auth_token"
   }
 }
