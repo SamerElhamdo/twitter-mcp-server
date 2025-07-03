@@ -971,23 +971,37 @@ class TwitterMCPServer:
         }
 
     async def run(self):
-        """Run the MCP server as a TCP server on 0.0.0.0:8765 instead of stdio."""
-        import asyncio
-        from mcp.server.tcp import tcp_server
-
-        async with tcp_server(host="0.0.0.0", port=8765) as (read_stream, write_stream):
-            await self.server.run(
-                read_stream,
-                write_stream,
-                InitializationOptions(
-                    server_name="twitter-mcp",
-                    server_version="1.0.0",
-                    capabilities=self.server.get_capabilities(
-                        notification_options=NotificationOptions(),
-                        experimental_capabilities={}
+        """Run the MCP server as a web service using FastMCP (HTTP). Fallback to stdio if FastMCP is unavailable."""
+        try:
+            from mcp.server.fastmcp.server import FastMCP
+        except ImportError:
+            # Fallback to stdio if FastMCP is not available
+            from mcp.server.stdio import stdio_server
+            async with stdio_server() as (read_stream, write_stream):
+                await self.server.run(
+                    read_stream,
+                    write_stream,
+                    InitializationOptions(
+                        server_name="twitter-mcp",
+                        server_version="1.0.0",
+                        capabilities=self.server.get_capabilities(
+                            notification_options=NotificationOptions(),
+                            experimental_capabilities={}
+                        )
                     )
                 )
-            )
+            return
+
+        # If FastMCP is available, run as HTTP server
+        app = FastMCP(
+            name="twitter-mcp",
+            instructions="Twitter MCP server (web mode)",
+            host="0.0.0.0",
+            port=8765,
+            debug=True,
+        )
+        # Optionally, you can register tools here if needed
+        app.run(transport="streamable-http")
 
 async def main():
     """Main entry point"""
