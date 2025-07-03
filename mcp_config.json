@@ -4,7 +4,8 @@
       "command": "python",
       "args": ["server.py"],
       "env": {
-        "TWITTER_AUTH_TOKEN": "${TWITTER_AUTH_TOKEN}"
+        "TWITTER_AUTH_TOKEN": "${TWITTER_AUTH_TOKEN}",
+        "TWITTER_CT0": "${TWITTER_CT0}"
       }
     }
   }

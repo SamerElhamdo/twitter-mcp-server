@@ -469,6 +469,72 @@ class TwitterMCPServer:
                         },
                         "required": ["ct0", "auth_token"]
                     }
+                ),
+                Tool(
+                    name="delete_tweet",
+                    description="Delete a tweet by ID",
+                    inputSchema={
+                        "type": "object",
+                        "properties": {
+                            "tweet_id": {
+                                "type": "string",
+                                "description": "The ID of the tweet to delete"
+                            },
+                            "ct0": {
+                                "type": "string",
+                                "description": "Twitter ct0 cookie (required)"
+                            },
+                            "auth_token": {
+                                "type": "string",
+                                "description": "Twitter auth_token cookie (required)"
+                            }
+                        },
+                        "required": ["tweet_id", "ct0", "auth_token"]
+                    }
+                ),
+                Tool(
+                    name="follow_user",
+                    description="Follow a user by username",
+                    inputSchema={
+                        "type": "object",
+                        "properties": {
+                            "username": {
+                                "type": "string",
+                                "description": "The username (without @) to follow"
+                            },
+                            "ct0": {
+                                "type": "string",
+                                "description": "Twitter ct0 cookie (required)"
+                            },
+                            "auth_token": {
+                                "type": "string",
+                                "description": "Twitter auth_token cookie (required)"
+                            }
+                        },
+                        "required": ["username", "ct0", "auth_token"]
+                    }
+                ),
+                Tool(
+                    name="unfollow_user",
+                    description="Unfollow a user by username",
+                    inputSchema={
+                        "type": "object",
+                        "properties": {
+                            "username": {
+                                "type": "string",
+                                "description": "The username (without @) to unfollow"
+                            },
+                            "ct0": {
+                                "type": "string",
+                                "description": "Twitter ct0 cookie (required)"
+                            },
+                            "auth_token": {
+                                "type": "string",
+                                "description": "Twitter auth_token cookie (required)"
+                            }
+                        },
+                        "required": ["username", "ct0", "auth_token"]
+                    }
                 )
             ]
 
@@ -552,6 +618,18 @@ class TwitterMCPServer:
                     count = arguments.get("count", 20)
                     result = await self._get_trends(client, category, count)
                     return [types.TextContent(type="text", text=json.dumps(result, indent=2))]
+                
+                elif name == "delete_tweet":
+                    result = await self._delete_tweet(client, arguments["tweet_id"])
+                    return [types.TextContent(type="text", text=f"Tweet deleted successfully: {json.dumps(result, indent=2)}")]
+                
+                elif name == "follow_user":
+                    result = await self._follow_user(client, arguments["username"])
+                    return [types.TextContent(type="text", text=f"Followed user successfully: {json.dumps(result, indent=2)}")]
+                
+                elif name == "unfollow_user":
+                    result = await self._unfollow_user(client, arguments["username"])
+                    return [types.TextContent(type="text", text=f"Unfollowed user successfully: {json.dumps(result, indent=2)}")]
                 
                 else:
                     raise ValueError(f"Unknown tool: {name}")
@@ -829,6 +907,34 @@ class TwitterMCPServer:
             }
             for trend in trends
         ]
+
+    async def _delete_tweet(self, client: Client, tweet_id: str) -> Dict[str, Any]:
+        """Delete a tweet by ID"""
+        result = await client.delete_tweet(tweet_id)
+        return {
+            "success": True,
+            "tweet_id": tweet_id
+        }
+
+    async def _follow_user(self, client: Client, username: str) -> Dict[str, Any]:
+        """Follow a user by username"""
+        user = await client.get_user_by_screen_name(username)
+        result = await client.follow(user.id)
+        return {
+            "success": True,
+            "username": username,
+            "user_id": user.id
+        }
+
+    async def _unfollow_user(self, client: Client, username: str) -> Dict[str, Any]:
+        """Unfollow a user by username"""
+        user = await client.get_user_by_screen_name(username)
+        result = await client.unfollow(user.id)
+        return {
+            "success": True,
+            "username": username,
+            "user_id": user.id
+        }
 
     async def run(self):
         """Run the MCP server"""
