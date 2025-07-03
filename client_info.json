@@ -1,0 +1,317 @@
+{
+      "login": {
+        "category": "Authentication & Session",
+        "description": "Log in to a Twitter account.",
+        "parameters": {
+          "auth_info_1": { "type": "string", "required": true, "description": "First identifier (username/email/phone)." },
+          "password":    { "type": "string", "required": true, "description": "Account password." },
+          "auth_info_2": { "type": "string", "required": false, "description": "Second identifier (email/phone)." },
+          "totp_secret": { "type": "string", "required": false, "description": "TOTP secret for 2-FA." },
+          "cookies_file":{ "type": "string", "required": false, "description": "Path to persist cookies JSON." },
+          "enable_ui_metrics": { "type": "boolean", "required": false, "description": "Send UI-metrics payload." }
+        }
+      },
+      "logout": {
+        "category": "Authentication & Session",
+        "description": "Log out of the authenticated account.",
+        "parameters": {}
+      },
+      "unlock": {
+        "category": "Authentication & Session",
+        "description": "Unlock a locked account via CAPTCHA solver.",
+        "parameters": {}
+      },
+      "get_cookies": {
+        "category": "Authentication & Session",
+        "description": "Return current session cookies.",
+        "parameters": {}
+      },
+      "save_cookies": {
+        "category": "Authentication & Session",
+        "description": "Save cookies to a JSON file.",
+        "parameters": {
+          "path": { "type": "string", "required": true, "description": "Destination file-path." }
+        }
+      },
+      "set_cookies": {
+        "category": "Authentication & Session",
+        "description": "Inject cookies dict to skip login.",
+        "parameters": {
+          "cookies": { "type": "object", "required": true, "description": "Cookie key/value pairs." },
+          "clear_cookies": { "type": "boolean", "required": false, "description": "Clear existing cookies first." }
+        }
+      },
+      "load_cookies": {
+        "category": "Authentication & Session",
+        "description": "Load cookies from a JSON file.",
+        "parameters": {
+          "path": { "type": "string", "required": true, "description": "Source file-path." }
+        }
+      },
+      "set_delegate_account": {
+        "category": "Authentication & Session",
+        "description": "Act on behalf of another account.",
+        "parameters": {
+          "user_id": { "type": "string", "required": true, "description": "Target user-ID (None to clear)." }
+        }
+      },
+      "user_id": {
+        "category": "Authentication & Session",
+        "description": "Get the authenticated user's ID.",
+        "parameters": {}
+      },
+      "user": {
+        "category": "Authentication & Session",
+        "description": "Get detailed profile of the authenticated user.",
+        "parameters": {}
+      },
+      "search_tweet": {
+        "category": "Search & Discovery",
+        "description": "Search public tweets.",
+        "parameters": {
+          "query":   { "type": "string",  "required": true,  "description": "Search query." },
+          "product": { "type": "string",  "required": true,  "description": "'Top', 'Latest', or 'Media'." },
+          "count":   { "type": "integer", "required": false, "description": "Number of tweets (1-20)." },
+          "cursor":  { "type": "string",  "required": false, "description": "Pagination cursor token." }
+        }
+      },
+      "search_user": {
+        "category": "Search & Discovery",
+        "description": "Search user profiles.",
+        "parameters": {
+          "query": { "type": "string", "required": true, "description": "Username/name to search." }
+        }
+      },
+      "get_trends": {
+        "category": "Trends",
+        "description": "Retrieve trending topics.",
+        "parameters": {
+          "category": { "type": "string",  "required": false, "description": "Trend tab (trending/for-you/news/…)."},
+          "count":    { "type": "integer", "required": false, "description": "Number of trends (1-50)." }
+        }
+      },
+      "get_place_trends": {
+        "category": "Trends",
+        "description": "Retrieve trends for a specific WOEID.",
+        "parameters": {
+          "woeid": { "type": "integer", "required": true, "description": "Where-On-Earth ID." },
+          "count": { "type": "integer", "required": false, "description": "Number of trends (1-50)." }
+        }
+      },
+      "upload_media": {
+        "category": "Media",
+        "description": "Upload photo/video/GIF.",
+        "parameters": {
+          "media_path": { "type": "string|bytes", "required": true, "description": "File path or binary payload." }
+        }
+      },
+      "check_media_status": {
+        "category": "Media",
+        "description": "Check processing status of an uploaded media.",
+        "parameters": {
+          "media_id": { "type": "string", "required": true, "description": "Media ID returned by upload." }
+        }
+      },
+      "create_media_metadata": {
+        "category": "Media",
+        "description": "Attach alt-text metadata to media.",
+        "parameters": {
+          "media_id": { "type": "string", "required": true, "description": "Media ID." },
+          "alt_text": { "type": "string", "required": true, "description": "Alt-text description." }
+        }
+      },
+      "create_poll": {
+        "category": "Media",
+        "description": "Create a poll card.",
+        "parameters": {
+          "choices":          { "type": "array<string>", "required": true, "description": "Poll answers (2-4)." },
+          "duration_minutes": { "type": "integer",       "required": true, "description": "Poll duration (5-10080 min)." }
+        }
+      },
+      "vote": {
+        "category": "Media",
+        "description": "Vote on an existing poll.",
+        "parameters": {
+          "poll_id":      { "type": "string",  "required": true, "description": "Poll/card URI." },
+          "choice_index": { "type": "integer", "required": true, "description": "Index of selected choice (0-3)." }
+        }
+      },
+      "create_tweet": {
+        "category": "Tweets",
+        "description": "Post a new tweet.",
+        "parameters": {
+          "text":                 { "type": "string",         "required": true,  "description": "Tweet text (≤ 280 chars)." },
+          "media_ids":            { "type": "array<string>",  "required": false, "description": "Uploaded media IDs." },
+          "poll_uri":             { "type": "string",         "required": false, "description": "Poll card URI." },
+          "in_reply_to_tweet_id": { "type": "string",         "required": false, "description": "Tweet ID to reply to." },
+          "quote_tweet_id":       { "type": "string",         "required": false, "description": "Tweet ID to quote." }
+        }
+      },
+      "delete_tweet": {
+        "category": "Tweets",
+        "description": "Delete a tweet.",
+        "parameters": {
+          "tweet_id": { "type": "string", "required": true, "description": "ID of tweet to delete." }
+        }
+      },
+      "favorite_tweet": {
+        "category": "Engagement",
+        "description": "Like a tweet.",
+        "parameters": {
+          "tweet_id": { "type": "string", "required": true, "description": "Tweet ID." }
+        }
+      },
+      "unfavorite_tweet": {
+        "category": "Engagement",
+        "description": "Unlike a tweet.",
+        "parameters": {
+          "tweet_id": { "type": "string", "required": true, "description": "Tweet ID." }
+        }
+      },
+      "retweet": {
+        "category": "Engagement",
+        "description": "Retweet a tweet.",
+        "parameters": {
+          "tweet_id": { "type": "string", "required": true, "description": "Tweet ID." }
+        }
+      },
+      "delete_retweet": {
+        "category": "Engagement",
+        "description": "Undo a retweet.",
+        "parameters": {
+          "tweet_id": { "type": "string", "required": true, "description": "Original tweet ID." }
+        }
+      },
+      "bookmark_tweet": {
+        "category": "Engagement",
+        "description": "Bookmark a tweet.",
+        "parameters": {
+          "tweet_id": { "type": "string", "required": true, "description": "Tweet ID." }
+        }
+      },
+      "delete_bookmark": {
+        "category": "Engagement",
+        "description": "Remove a bookmark.",
+        "parameters": {
+          "tweet_id": { "type": "string", "required": true, "description": "Tweet ID." }
+        }
+      },
+      "get_timeline": {
+        "category": "Timelines",
+        "description": "Home timeline (Algorithmic).",
+        "parameters": {
+          "count":  { "type": "integer", "required": false, "description": "Number of tweets (1-100)." },
+          "cursor": { "type": "string",  "required": false, "description": "Pagination cursor." }
+        }
+      },
+      "get_latest_timeline": {
+        "category": "Timelines",
+        "description": "Home timeline (Latest).",
+        "parameters": {
+          "count":  { "type": "integer", "required": false, "description": "Number of tweets (1-100)." },
+          "cursor": { "type": "string",  "required": false, "description": "Pagination cursor." }
+        }
+      },
+      "get_user_by_screen_name": {
+        "category": "Users",
+        "description": "Lookup user by @username.",
+        "parameters": {
+          "username": { "type": "string", "required": true, "description": "Screen-name without @." }
+        }
+      },
+      "get_user_by_id": {
+        "category": "Users",
+        "description": "Lookup user by ID.",
+        "parameters": {
+          "user_id": { "type": "string", "required": true, "description": "Numeric user ID." }
+        }
+      },
+      "get_user_tweets": {
+        "category": "Users",
+        "description": "Fetch tweets from a user profile.",
+        "parameters": {
+          "user_id":   { "type": "string",  "required": true,  "description": "Target user ID." },
+          "tweet_type":{ "type": "string",  "required": false, "description": "'Tweets', 'Replies', or 'Media'." },
+          "count":     { "type": "integer", "required": false, "description": "Number (1-100)." }
+        }
+      },
+      "follow_user": {
+        "category": "Social Graph",
+        "description": "Follow a user.",
+        "parameters": {
+          "user_id": { "type": "string", "required": true, "description": "ID of user to follow." }
+        }
+      },
+      "unfollow_user": {
+        "category": "Social Graph",
+        "description": "Unfollow a user.",
+        "parameters": {
+          "user_id": { "type": "string", "required": true, "description": "ID of user to unfollow." }
+        }
+      },
+      "mute_user": {
+        "category": "Social Graph",
+        "description": "Mute a user.",
+        "parameters": {
+          "user_id": { "type": "string", "required": true, "description": "User ID." }
+        }
+      },
+      "unmute_user": {
+        "category": "Social Graph",
+        "description": "Unmute a user.",
+        "parameters": {
+          "user_id": { "type": "string", "required": true, "description": "User ID." }
+        }
+      },
+      "block_user": {
+        "category": "Social Graph",
+        "description": "Block a user.",
+        "parameters": {
+          "user_id": { "type": "string", "required": true, "description": "User ID." }
+        }
+      },
+      "unblock_user": {
+        "category": "Social Graph",
+        "description": "Unblock a user.",
+        "parameters": {
+          "user_id": { "type": "string", "required": true, "description": "User ID." }
+        }
+      },
+      "send_dm": {
+        "category": "Direct Messages",
+        "description": "Send a direct message.",
+        "parameters": {
+          "user_id": { "type": "string", "required": true, "description": "Recipient user ID." },
+          "text":    { "type": "string", "required": true, "description": "Message body." }
+        }
+      },
+      "get_dm_history": {
+        "category": "Direct Messages",
+        "description": "Fetch DM history.",
+        "parameters": {
+          "user_id": { "type": "string",  "required": true,  "description": "Conversation user ID." },
+          "count":   { "type": "integer", "required": false, "description": "Messages to retrieve (1-100)." }
+        }
+      },
+      "add_reaction_to_message": {
+        "category": "Direct Messages",
+        "description": "React to a DM.",
+        "parameters": {
+          "message_id":     { "type": "string", "required": true, "description": "DM message ID." },
+          "conversation_id":{ "type": "string", "required": true, "description": "Conversation ID." },
+          "emoji":          { "type": "string", "required": true, "description": "Unicode emoji." }
+        }
+      },
+      "delete_dm": {
+        "category": "Direct Messages",
+        "description": "Delete a DM.",
+        "parameters": {
+          "message_id": { "type": "string", "required": true, "description": "DM message ID." }
+        }
+      },
+      "get_streaming_session": {
+        "category": "Streaming",
+        "description": "Open websocket for real-time events.",
+        "parameters": {}
+      }
+    }
