@@ -535,6 +535,28 @@ class TwitterMCPServer:
                         },
                         "required": ["username", "ct0", "auth_token"]
                     }
+                ),
+                Tool(
+                    name="unretweet",
+                    description="Undo a retweet by tweet ID",
+                    inputSchema={
+                        "type": "object",
+                        "properties": {
+                            "tweet_id": {
+                                "type": "string",
+                                "description": "The ID of the tweet to unretweet"
+                            },
+                            "ct0": {
+                                "type": "string",
+                                "description": "Twitter ct0 cookie (required)"
+                            },
+                            "auth_token": {
+                                "type": "string",
+                                "description": "Twitter auth_token cookie (required)"
+                            }
+                        },
+                        "required": ["tweet_id", "ct0", "auth_token"]
+                    }
                 )
             ]
 
@@ -630,6 +652,10 @@ class TwitterMCPServer:
                 elif name == "unfollow_user":
                     result = await self._unfollow_user(client, arguments["username"])
                     return [types.TextContent(type="text", text=f"Unfollowed user successfully: {json.dumps(result, indent=2)}")]
+                
+                elif name == "unretweet":
+                    result = await self._unretweet(client, arguments["tweet_id"])
+                    return [types.TextContent(type="text", text=f"Unretweeted successfully: {json.dumps(result, indent=2)}")]
                 
                 else:
                     raise ValueError(f"Unknown tool: {name}")
@@ -919,7 +945,7 @@ class TwitterMCPServer:
     async def _follow_user(self, client: Client, username: str) -> Dict[str, Any]:
         """Follow a user by username"""
         user = await client.get_user_by_screen_name(username)
-        result = await client.follow(user.id)
+        result = await client.follow_user(user.id)
         return {
             "success": True,
             "username": username,
@@ -929,19 +955,27 @@ class TwitterMCPServer:
     async def _unfollow_user(self, client: Client, username: str) -> Dict[str, Any]:
         """Unfollow a user by username"""
         user = await client.get_user_by_screen_name(username)
-        result = await client.unfollow(user.id)
+        result = await client.unfollow_user(user.id)
         return {
             "success": True,
             "username": username,
             "user_id": user.id
         }
 
+    async def _unretweet(self, client: Client, tweet_id: str) -> Dict[str, Any]:
+        """Undo a retweet by tweet ID"""
+        result = await client.delete_retweet(tweet_id)
+        return {
+            "success": True,
+            "tweet_id": tweet_id
+        }
+
     async def run(self):
-        """Run the MCP server"""
-        # Import here to avoid issues with event loop
-        from mcp.server.stdio import stdio_server
-        
-        async with stdio_server() as (read_stream, write_stream):
+        """Run the MCP server as a TCP server on localhost:8765 instead of stdio."""
+        import asyncio
+        from mcp.server.tcp import tcp_server
+
+        async with tcp_server(host="127.0.0.1", port=8765) as (read_stream, write_stream):
             await self.server.run(
                 read_stream,
                 write_stream,
