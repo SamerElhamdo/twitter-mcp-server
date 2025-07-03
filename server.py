@@ -26,6 +26,7 @@ from mcp.types import (
 import mcp.types as types
 
 from twikit import Client
+from mcp.server.stdio import stdio_server
 
 # Load environment variables
 load_dotenv()
@@ -970,44 +971,24 @@ class TwitterMCPServer:
             "tweet_id": tweet_id
         }
 
-    def run(self):
-        """Run the MCP server as a web service using FastMCP (HTTP). Fallback to stdio if FastMCP is unavailable."""
-        try:
-            from mcp.server.fastmcp.server import FastMCP
-        except ImportError:
-            # Fallback to stdio if FastMCP is not available
-            import asyncio
-            from mcp.server.stdio import stdio_server
-            async def stdio_main():
-                async with stdio_server() as (read_stream, write_stream):
-                    await self.server.run(
-                        read_stream,
-                        write_stream,
-                        InitializationOptions(
-                            server_name="twitter-mcp",
-                            server_version="1.0.0",
-                            capabilities=self.server.get_capabilities(
-                                notification_options=NotificationOptions(),
-                                experimental_capabilities={}
-                            )
-                        )
+    async def run(self):
+        async with stdio_server() as (read_stream, write_stream):
+            await self.server.run(
+                read_stream,
+                write_stream,
+                InitializationOptions(
+                    server_name="twitter-mcp",
+                    server_version="1.0.0",
+                    capabilities=self.server.get_capabilities(
+                        notification_options=NotificationOptions(),
+                        experimental_capabilities={}
                     )
-            asyncio.run(stdio_main())
-            return
-
-        # If FastMCP is available, run as HTTP server (sync)
-        app = FastMCP(
-            name="twitter-mcp",
-            instructions="Twitter MCP server (web mode)",
-            host="0.0.0.0",
-            port=8765,
-            debug=True,
-        )
-        app.run(transport="streamable-http")
+                )
+            )
 
 def main():
     server = TwitterMCPServer()
-    server.run()
+    asyncio.run(server.run())
 
 if __name__ == "__main__":
     main()
