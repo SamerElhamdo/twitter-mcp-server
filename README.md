@@ -332,3 +332,12 @@ Get trending topics on Twitter.
 ### Available Resources
 
 Resources can be accessed but require the `TWITTER_CT0`
+
+def main():
+    server = TwitterMCPServer()
+    # server.run() is now a sync function that internally handles async if needed
+    import asyncio
+    asyncio.run(server.run())
+
+if __name__ == "__main__":
+    main()
