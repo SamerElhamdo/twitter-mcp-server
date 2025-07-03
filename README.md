@@ -24,6 +24,26 @@ A Model Context Protocol (MCP) server that provides Twitter functionality using 
 
 **This tool is intended for educational and experimental purposes only. Users should be aware of the potential risks associated with using unofficial APIs, including but not limited to account restrictions or suspension. The developers of this project are not responsible for any misuse or consequences arising from the use of this tool.**
 
+## Docker Usage
+
+You can run this MCP server in a Docker container that exposes TCP port 8765 for MCP protocol connections.
+
+### Build the Docker image
+```bash
+docker build -t twitter-mcp-server .
+```
+
+### Run the container
+```bash
+docker run -p 8765:8765 \
+  -e TWITTER_AUTH_TOKEN=your_token \
+  -e TWITTER_CT0=your_ct0 \
+  twitter-mcp-server
+```
+
+- The server will listen for MCP TCP connections on `0.0.0.0:8765` inside the container.
+- Replace `your_token` and `your_ct0` with your actual Twitter session cookies.
+
 ## Installation
 
 1. Clone this repository:
