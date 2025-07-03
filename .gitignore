@@ -2,7 +2,7 @@
 .env
 .env.local
 .env.*.local
-
+.secert/
 
 # Twitter session data
 twitter_cookies.json

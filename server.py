@@ -969,13 +969,15 @@ class TwitterMCPServer:
             "success": True,
             "tweet_id": tweet_id
         }
+        """Run the MCP server"""
+        # Import here to avoid issues with event loop
+
 
     async def run(self):
-        """Run the MCP server as a TCP server on localhost:8765 instead of stdio."""
-        import asyncio
-        from mcp.server.tcp import tcp_server
-
-        async with tcp_server(host="127.0.0.1", port=8765) as (read_stream, write_stream):
+        """Run the MCP server using stdio."""
+        from mcp.server.stdio import stdio_server
+        
+        async with stdio_server() as (read_stream, write_stream):
             await self.server.run(
                 read_stream,
                 write_stream,
