@@ -1003,7 +1003,7 @@ class TwitterMCPServer:
             port=8765,
             debug=True,
         )
-        app.run(transport="streamable-http")
+        app.run(transport="streamable-http",path="/mcp/")
 
 def main():
     server = TwitterMCPServer()
