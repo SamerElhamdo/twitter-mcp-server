@@ -802,16 +802,6 @@ class TwitterMCPServer:
                                 "type": "string",
                                 "description": "TOTP secret for 2-FA",
                                 "default": None
-                            },
-                            "cookies_file": {
-                                "type": "string",
-                                "description": "Path to persist cookies JSON",
-                                "default": None
-                            },
-                            "enable_ui_metrics": {
-                                "type": "boolean",
-                                "description": "Send UI-metrics payload",
-                                "default": True
                             }
                         },
                         "required": ["auth_info_1", "password"]
@@ -1036,9 +1026,8 @@ class TwitterMCPServer:
                         auth_info_1=arguments["auth_info_1"],
                         auth_info_2=arguments.get("auth_info_2"),
                         password=arguments["password"],
-                        totp_secret=arguments.get("totp_secret"),
-                        cookies_file=arguments.get("cookies_file"),
-                        enable_ui_metrics=arguments.get("enable_ui_metrics", True)
+                        totp_secret=arguments.get("totp_secret")
+
                     )
                     return [types.TextContent(type="text", text=json.dumps(result, indent=2))]
                 
@@ -1501,9 +1490,8 @@ class TwitterMCPServer:
             auth_info_1=auth_info_1,
             auth_info_2=auth_info_2,
             password=password,
-            totp_secret=totp_secret,
-            cookies_file=cookies_file,
-            enable_ui_metrics=enable_ui_metrics
+            totp_secret=totp_secret
+        
         )
         return result
 
