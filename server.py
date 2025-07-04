@@ -962,17 +962,17 @@ class TwitterMCPServer:
         """Test authentication and return user info"""
         # Get user ID first, then use it to get user details
         user_id = await client.user_id()
-        user = await client.user()
+        # user = await client.user()
         return {
             "authenticated": True,
             "user": {
-                "id": user.id,
-                "username": user.screen_name,
-                "name": user.name,
-                "followers_count": user.followers_count,
-                "following_count": user.following_count,
-                "tweet_count": user.statuses_count,
-                "verified": user.verified
+                "id": user_id,
+                # "username": user.screen_name,
+                # "name": user.name,
+                # "followers_count": user.followers_count,
+                # "following_count": user.following_count,
+                # "tweet_count": user.statuses_count,
+                # "verified": user.verified
             }
         }
 
