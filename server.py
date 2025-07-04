@@ -1317,10 +1317,7 @@ class TwitterMCPServer:
         community = await client.join_community(community_id)
         return {
             "id": getattr(community, "id", None),
-            "name": getattr(community, "name", None),
-            "description": getattr(community, "description", None),
-            "member_count": getattr(community, "member_count", None),
-            "raw": community.__dict__ if hasattr(community, "__dict__") else str(community)
+            "name": getattr(community, "name", None)
         }
 
     async def _get_community_members(self, client: Client, community_id: str, count: int = 20) -> list:
@@ -1343,10 +1340,7 @@ class TwitterMCPServer:
         community = await client.leave_community(community_id)
         return {
             "id": getattr(community, "id", None),
-            "name": getattr(community, "name", None),
-            "description": getattr(community, "description", None),
-            "member_count": getattr(community, "member_count", None),
-            "raw": community.__dict__ if hasattr(community, "__dict__") else str(community)
+            "name": getattr(community, "name", None)
         }
 
     async def _get_community_tweets(self, client: Client, community_id: str, tweet_type: str = "Latest", count: int = 40) -> list:
