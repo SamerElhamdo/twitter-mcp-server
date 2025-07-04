@@ -1322,7 +1322,7 @@ class TwitterMCPServer:
 
     async def _get_community_members(self, client: Client, community_id: str, count: int = 20) -> list:
         """Retrieve members of a community by its ID"""
-        members_result = await client.asyncget_community_members(community_id, count=count)
+        members_result = await client.get_community_members(community_id, count=count)
         members = []
         for member in members_result:
             members.append({
@@ -1375,7 +1375,7 @@ class TwitterMCPServer:
 
     async def _get_dm_history_by_id(self, client: Client, user_id: str, max_id: str = None) -> list:
         """Retrieve DM conversation history with a specific user by user_id (with optional max_id)"""
-        result = await client.asyncget_dm_history(user_id, max_id=max_id)
+        result = await client.get_dm_history(user_id, max_id=max_id)
         messages = []
         for message in result:
             messages.append({
@@ -1396,7 +1396,7 @@ class TwitterMCPServer:
 
     async def _get_user_followers(self, client: Client, user_id: str, count: int = 20) -> list:
         """Retrieve a list of followers for a given user by user_id"""
-        result = await client.asyncget_user_followers(user_id, count=count)
+        result = await client.get_user_followers(user_id, count=count)
         followers = []
         for user in result:
             followers.append({
@@ -1414,7 +1414,7 @@ class TwitterMCPServer:
 
     async def _unlock(self, client: Client) -> dict:
         """Unlock the account using the provided CAPTCHA solver."""
-        result = await client.asyncunlock()
+        result = await client.unlock()
         return {"success": True, "result": str(result)}
 
     async def _get_cookies(self, client: Client) -> dict:
