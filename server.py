@@ -1121,7 +1121,7 @@ class TwitterMCPServer:
 
     async def _add_reaction_to_message(self, client: Client, message_id: str, emoji: str, conversation_id: str) -> dict:
         """Add a reaction (emoji) to a direct message using asyncadd_reaction_to_message"""
-        response = await client.asyncadd_reaction_to_message(message_id, conversation_id, emoji)
+        response = await client.add_reaction_to_message(message_id, conversation_id, emoji)
         # Try to parse response if possible
         try:
             data = response.json() if hasattr(response, 'json') else str(response)
@@ -1137,7 +1137,7 @@ class TwitterMCPServer:
 
     async def _delete_dm(self, client: Client, message_id: str) -> dict:
         """Delete a direct message by its ID using asyncdelete_dm"""
-        response = await client.asyncdelete_dm(message_id)
+        response = await client.delete_dm(message_id)
         # Try to parse response if possible
         try:
             data = response.json() if hasattr(response, 'json') else str(response)
@@ -1247,7 +1247,7 @@ class TwitterMCPServer:
 
     async def _join_community(self, client: Client, community_id: str) -> dict:
         """Join a community by its ID"""
-        community = await client.asyncjoin_community(community_id)
+        community = await client.join_community(community_id)
         return {
             "id": getattr(community, "id", None),
             "name": getattr(community, "name", None),
@@ -1258,7 +1258,7 @@ class TwitterMCPServer:
 
     async def _get_community_members(self, client: Client, community_id: str, count: int = 20) -> list:
         """Retrieve members of a community by its ID"""
-        members_result = await client.asyncget_community_members(community_id, count=count)
+        members_result = await client.get_community_members(community_id, count=count)
         members = []
         for member in members_result:
             members.append({
@@ -1273,7 +1273,7 @@ class TwitterMCPServer:
 
     async def _leave_community(self, client: Client, community_id: str) -> dict:
         """Leave a community by its ID"""
-        community = await client.asyncleave_community(community_id)
+        community = await client.leave_community(community_id)
         return {
             "id": getattr(community, "id", None),
             "name": getattr(community, "name", None),
@@ -1284,7 +1284,7 @@ class TwitterMCPServer:
 
     async def _get_community_tweets(self, client: Client, community_id: str, tweet_type: str = "Latest", count: int = 40) -> list:
         """Retrieve tweets from a community by its ID"""
-        tweets_result = await client.asyncget_community_tweets(community_id, tweet_type=tweet_type, count=count)
+        tweets_result = await client.get_community_tweets(community_id, tweet_type=tweet_type, count=count)
         tweets = []
         for tweet in tweets_result:
             tweets.append({
@@ -1302,7 +1302,7 @@ class TwitterMCPServer:
 
     async def _get_notifications(self, client: Client, notif_type: str = "All", count: int = 40) -> list:
         """Retrieve notifications by type"""
-        notifications_result = await client.asyncget_notifications(notif_type, count=count)
+        notifications_result = await client.get_notifications(notif_type, count=count)
         notifications = []
         for notif in notifications_result:
             notifications.append({
@@ -1317,7 +1317,7 @@ class TwitterMCPServer:
 
     async def _get_dm_history_by_id(self, client: Client, user_id: str, max_id: str = None) -> list:
         """Retrieve DM conversation history with a specific user by user_id (with optional max_id)"""
-        result = await client.asyncget_dm_history(user_id, max_id=max_id)
+        result = await client.get_dm_history(user_id, max_id=max_id)
         messages = []
         for message in result:
             messages.append({
@@ -1333,13 +1333,13 @@ class TwitterMCPServer:
 
     async def _get_friends_ids(self, client: Client, user_id: str = None, screen_name: str = None, count: int = 5000) -> list:
         """Fetch the IDs of the friends (following users) of a specified user (by user_id or screen_name)"""
-        result = await client.asyncget_friends_ids(user_id=user_id, screen_name=screen_name, count=count)
+        result = await client.get_friends_ids(user_id=user_id, screen_name=screen_name, count=count)
         ids = list(result) if result else []
         return ids
 
     async def _get_user_followers(self, client: Client, user_id: str, count: int = 20) -> list:
         """Retrieve a list of followers for a given user by user_id"""
-        result = await client.asyncget_user_followers(user_id, count=count)
+        result = await client.get_user_followers(user_id, count=count)
         followers = []
         for user in result:
             followers.append({
