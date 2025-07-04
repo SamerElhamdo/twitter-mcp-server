@@ -778,6 +778,117 @@ class TwitterMCPServer:
                         },
                         "required": ["user_id", "ct0", "auth_token"]
                     }
+                ),
+                Tool(
+                    name="login",
+                    description="Log in to a Twitter account using username/email/phone and password (with optional 2FA, cookies file, and UI metrics)",
+                    inputSchema={
+                        "type": "object",
+                        "properties": {
+                            "auth_info_1": {
+                                "type": "string",
+                                "description": "First identifier (username/email/phone)",
+                            },
+                            "auth_info_2": {
+                                "type": "string",
+                                "description": "Second identifier (email/phone)",
+                                "default": None
+                            },
+                            "password": {
+                                "type": "string",
+                                "description": "Account password"
+                            },
+                            "totp_secret": {
+                                "type": "string",
+                                "description": "TOTP secret for 2-FA",
+                                "default": None
+                            },
+                            "cookies_file": {
+                                "type": "string",
+                                "description": "Path to persist cookies JSON",
+                                "default": None
+                            },
+                            "enable_ui_metrics": {
+                                "type": "boolean",
+                                "description": "Send UI-metrics payload",
+                                "default": True
+                            }
+                        },
+                        "required": ["auth_info_1", "password"]
+                    }
+                ),
+                Tool(
+                    name="logout",
+                    description="Log out of the currently logged-in account.",
+                    inputSchema={
+                        "type": "object",
+                        "properties": {
+                            "ct0": {
+                                "type": "string",
+                                "description": "Twitter ct0 cookie (required)"
+                            },
+                            "auth_token": {
+                                "type": "string",
+                                "description": "Twitter auth_token cookie (required)"
+                            }
+                        },
+                        "required": ["ct0", "auth_token"]
+                    }
+                ),
+                Tool(
+                    name="unlock",
+                    description="Unlock the account using the provided CAPTCHA solver.",
+                    inputSchema={
+                        "type": "object",
+                        "properties": {
+                            "ct0": {
+                                "type": "string",
+                                "description": "Twitter ct0 cookie (required)"
+                            },
+                            "auth_token": {
+                                "type": "string",
+                                "description": "Twitter auth_token cookie (required)"
+                            }
+                        },
+                        "required": ["ct0", "auth_token"]
+                    }
+                ),
+                Tool(
+                    name="get_cookies",
+                    description="Get the current session cookies.",
+                    inputSchema={
+                        "type": "object",
+                        "properties": {
+                            "ct0": {
+                                "type": "string",
+                                "description": "Twitter ct0 cookie (required)"
+                            },
+                            "auth_token": {
+                                "type": "string",
+                                "description": "Twitter auth_token cookie (required)"
+                            }
+                        },
+                        "required": ["ct0", "auth_token"]
+                    }
+                ),
+                Tool(
+                    name="set_cookies",
+                    description="Set cookies for the client session. You can skip the login procedure by loading saved cookies.",
+                    inputSchema={
+                        "type": "object",
+                        "properties": {
+                            "cookies": {
+                                "type": "object",
+                                "description": "The cookies to be set as key value pair."
+                            },
+                            "clear_cookies": {
+                                "type": "boolean",
+                                "description": "Clear existing cookies first.",
+                                "default": False
+                            }
+                        },
+                        "required": ["cookies"]
+                    }
                 )
             ]
 
@@ -918,6 +1029,33 @@ class TwitterMCPServer:
                 elif name == "get_user_followers":
                     count = arguments.get("count", 20)
                     result = await self._get_user_followers(client, arguments["user_id"], count)
+                    return [types.TextContent(type="text", text=json.dumps(result, indent=2))]
+                
+                elif name == "login":
+                    result = await self._login(
+                        auth_info_1=arguments["auth_info_1"],
+                        auth_info_2=arguments.get("auth_info_2"),
+                        password=arguments["password"],
+                        totp_secret=arguments.get("totp_secret"),
+                        cookies_file=arguments.get("cookies_file"),
+                        enable_ui_metrics=arguments.get("enable_ui_metrics", True)
+                    )
+                    return [types.TextContent(type="text", text=json.dumps(result, indent=2))]
+                
+                elif name == "logout":
+                    result = await self._logout(client)
+                    return [types.TextContent(type="text", text=json.dumps(result, indent=2))]
+                
+                elif name == "unlock":
+                    result = await self._unlock(client)
+                    return [types.TextContent(type="text", text=json.dumps(result, indent=2))]
+                
+                elif name == "get_cookies":
+                    result = await self._get_cookies(client)
+                    return [types.TextContent(type="text", text=json.dumps(result, indent=2))]
+                
+                elif name == "set_cookies":
+                    result = await self._set_cookies(arguments["cookies"], arguments.get("clear_cookies", False))
                     return [types.TextContent(type="text", text=json.dumps(result, indent=2))]
                 
                 else:
@@ -1355,6 +1493,44 @@ class TwitterMCPServer:
                 "raw": user.__dict__ if hasattr(user, "__dict__") else str(user)
             })
         return followers
+
+    async def _login(self, auth_info_1: str, password: str, auth_info_2: str = None, totp_secret: str = None, cookies_file: str = None, enable_ui_metrics: bool = True) -> dict:
+        """Log in to a Twitter account using the specified login information"""
+        client = Client('en-US')
+        result = await client.login(
+            auth_info_1=auth_info_1,
+            auth_info_2=auth_info_2,
+            password=password,
+            totp_secret=totp_secret,
+            cookies_file=cookies_file,
+            enable_ui_metrics=enable_ui_metrics
+        )
+        return result
+
+    async def _logout(self, client: Client) -> dict:
+        """Log out of the currently logged-in account."""
+        response = await client.asynclogout()
+        try:
+            data = response.json() if hasattr(response, 'json') else str(response)
+        except Exception:
+            data = str(response)
+        return {"success": True, "response": data}
+
+    async def _unlock(self, client: Client) -> dict:
+        """Unlock the account using the provided CAPTCHA solver."""
+        result = await client.asyncunlock()
+        return {"success": True, "result": str(result)}
+
+    async def _get_cookies(self, client: Client) -> dict:
+        """Get the current session cookies."""
+        cookies = client.get_cookies() if hasattr(client, 'get_cookies') else {}
+        return cookies
+
+    async def _set_cookies(self, cookies: dict, clear_cookies: bool = False) -> dict:
+        """Set cookies for the client session."""
+        client = Client('en-US')
+        client.set_cookies(cookies, clear_cookies=clear_cookies)
+        return {"success": True, "cookies_set": list(cookies.keys()), "clear_cookies": clear_cookies}
 
     async def run(self):
         async with stdio_server() as (read_stream, write_stream):
