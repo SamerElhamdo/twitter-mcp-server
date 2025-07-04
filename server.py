@@ -962,7 +962,7 @@ class TwitterMCPServer:
         """Test authentication and return user info"""
         # Get user ID first, then use it to get user details
         user_id = await client.user_id()
-        user = await client.user(user_id)
+        user = await client.user()
         return {
             "authenticated": True,
             "user": {
