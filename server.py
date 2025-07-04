@@ -1322,7 +1322,7 @@ class TwitterMCPServer:
 
     async def _get_community_members(self, client: Client, community_id: str, count: int = 20) -> list:
         """Retrieve members of a community by its ID"""
-        members_result = await client.get_community_members(community_id, count=count)
+        members_result = await client.asyncget_community_members(community_id, count=count)
         members = []
         for member in members_result:
             members.append({
@@ -1330,8 +1330,7 @@ class TwitterMCPServer:
                 "username": getattr(member, "screen_name", None),
                 "name": getattr(member, "name", None),
                 "description": getattr(member, "description", None),
-                "joined_at": str(getattr(member, "joined_at", "")),
-                "raw": member.__dict__ if hasattr(member, "__dict__") else str(member)
+                "joined_at": str(getattr(member, "joined_at", ""))
             })
         return members
 
@@ -1356,8 +1355,7 @@ class TwitterMCPServer:
                 "created_at": str(getattr(tweet, "created_at", "")),
                 "like_count": getattr(tweet, "favorite_count", None),
                 "retweet_count": getattr(tweet, "retweet_count", None),
-                "reply_count": getattr(tweet, "reply_count", None),
-                "raw": tweet.__dict__ if hasattr(tweet, "__dict__") else str(tweet)
+                "reply_count": getattr(tweet, "reply_count", None)
             })
         return tweets
 
@@ -1371,14 +1369,13 @@ class TwitterMCPServer:
                 "type": getattr(notif, "type", None),
                 "text": getattr(notif, "text", None),
                 "created_at": str(getattr(notif, "created_at", "")),
-                "user": getattr(notif, "user", None),
-                "raw": notif.__dict__ if hasattr(notif, "__dict__") else str(notif)
+                "user": getattr(notif, "user", None)
             })
         return notifications
 
     async def _get_dm_history_by_id(self, client: Client, user_id: str, max_id: str = None) -> list:
         """Retrieve DM conversation history with a specific user by user_id (with optional max_id)"""
-        result = await client.get_dm_history(user_id, max_id=max_id)
+        result = await client.asyncget_dm_history(user_id, max_id=max_id)
         messages = []
         for message in result:
             messages.append({
@@ -1387,8 +1384,7 @@ class TwitterMCPServer:
                 "time": str(getattr(message, "time", "")),
                 "sender_id": getattr(message, "sender_id", None),
                 "recipient_id": getattr(message, "recipient_id", None),
-                "attachment": getattr(message, "attachment", None),
-                "raw": message.__dict__ if hasattr(message, "__dict__") else str(message)
+                "attachment": getattr(message, "attachment", None)
             })
         return messages
 
@@ -1400,7 +1396,7 @@ class TwitterMCPServer:
 
     async def _get_user_followers(self, client: Client, user_id: str, count: int = 20) -> list:
         """Retrieve a list of followers for a given user by user_id"""
-        result = await client.get_user_followers(user_id, count=count)
+        result = await client.asyncget_user_followers(user_id, count=count)
         followers = []
         for user in result:
             followers.append({
@@ -1412,8 +1408,7 @@ class TwitterMCPServer:
                 "following_count": getattr(user, "following_count", None),
                 "tweet_count": getattr(user, "statuses_count", None),
                 "verified": getattr(user, "verified", None),
-                "created_at": str(getattr(user, "created_at", "")),
-                "raw": user.__dict__ if hasattr(user, "__dict__") else str(user)
+                "created_at": str(getattr(user, "created_at", ""))
             })
         return followers
 
