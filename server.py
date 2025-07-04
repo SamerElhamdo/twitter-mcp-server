@@ -780,52 +780,6 @@ class TwitterMCPServer:
                     }
                 ),
                 Tool(
-                    name="login",
-                    description="Log in to a Twitter account using username/email/phone and password (with optional 2FA, cookies file, and UI metrics)",
-                    inputSchema={
-                        "type": "object",
-                        "properties": {
-                            "auth_info_1": {
-                                "type": "string",
-                                "description": "First identifier (username/email/phone)",
-                            },
-                            "auth_info_2": {
-                                "type": "string",
-                                "description": "Second identifier (email/phone)",
-                                "default": None
-                            },
-                            "password": {
-                                "type": "string",
-                                "description": "Account password"
-                            },
-                            "totp_secret": {
-                                "type": "string",
-                                "description": "TOTP secret for 2-FA",
-                                "default": None
-                            }
-                        },
-                        "required": ["auth_info_1", "password"]
-                    }
-                ),
-                Tool(
-                    name="logout",
-                    description="Log out of the currently logged-in account.",
-                    inputSchema={
-                        "type": "object",
-                        "properties": {
-                            "ct0": {
-                                "type": "string",
-                                "description": "Twitter ct0 cookie (required)"
-                            },
-                            "auth_token": {
-                                "type": "string",
-                                "description": "Twitter auth_token cookie (required)"
-                            }
-                        },
-                        "required": ["ct0", "auth_token"]
-                    }
-                ),
-                Tool(
                     name="unlock",
                     description="Unlock the account using the provided CAPTCHA solver.",
                     inputSchema={
@@ -890,17 +844,10 @@ class TwitterMCPServer:
                 ct0 = arguments.get("ct0")
                 auth_token = arguments.get("auth_token")
                 if not ct0 or not auth_token:
-                    if name == "login":
-
-                        pass
-                    else:
-                        return [types.TextContent(type="text", text="Error: Both ct0 and auth_token cookies are required for all operations")]
-                if name == "login":
-                    pass
-                else:   
-
-                    # Get authenticated client
-                    client = await self._get_authenticated_client(ct0, auth_token)
+                    return [types.TextContent(type="text", text="Error: Both ct0 and auth_token cookies are required for all operations")]
+                
+                # Get authenticated client
+                client = await self._get_authenticated_client(ct0, auth_token)
                 
                 if name == "authenticate":
                     result = await self._test_authentication(client)
@@ -1026,20 +973,6 @@ class TwitterMCPServer:
                 elif name == "get_user_followers":
                     count = arguments.get("count", 20)
                     result = await self._get_user_followers(client, arguments["user_id"], count)
-                    return [types.TextContent(type="text", text=json.dumps(result, indent=2))]
-                
-                elif name == "login":
-                    result = await self._login(
-                        auth_info_1=arguments["auth_info_1"],
-                        auth_info_2=arguments.get("auth_info_2"),
-                        password=arguments["password"],
-                        totp_secret=arguments.get("totp_secret")
-
-                    )
-                    return [types.TextContent(type="text", text=json.dumps(result, indent=2))]
-                
-                elif name == "logout":
-                    result = await self._logout(client)
                     return [types.TextContent(type="text", text=json.dumps(result, indent=2))]
                 
                 elif name == "unlock":
@@ -1489,27 +1422,6 @@ class TwitterMCPServer:
                 "raw": user.__dict__ if hasattr(user, "__dict__") else str(user)
             })
         return followers
-
-    async def _login(self, auth_info_1: str, password: str, auth_info_2: str = None, totp_secret: str = None, cookies_file: str = None, enable_ui_metrics: bool = True) -> dict:
-        """Log in to a Twitter account using the specified login information"""
-        client = Client('en-US')
-        result = await client.login(
-            auth_info_1=auth_info_1,
-            auth_info_2=auth_info_2,
-            password=password,
-            totp_secret=totp_secret
-        
-        )
-        return result
-
-    async def _logout(self, client: Client) -> dict:
-        """Log out of the currently logged-in account."""
-        response = await client.asynclogout()
-        try:
-            data = response.json() if hasattr(response, 'json') else str(response)
-        except Exception:
-            data = str(response)
-        return {"success": True, "response": data}
 
     async def _unlock(self, client: Client) -> dict:
         """Unlock the account using the provided CAPTCHA solver."""
