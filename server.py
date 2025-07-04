@@ -895,9 +895,12 @@ class TwitterMCPServer:
                         pass
                     else:
                         return [types.TextContent(type="text", text="Error: Both ct0 and auth_token cookies are required for all operations")]
+                if name == "login":
+                    pass
+                else:   
 
-                # Get authenticated client
-                client = await self._get_authenticated_client(ct0, auth_token)
+                    # Get authenticated client
+                    client = await self._get_authenticated_client(ct0, auth_token)
                 
                 if name == "authenticate":
                     result = await self._test_authentication(client)
