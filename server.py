@@ -580,6 +580,204 @@ class TwitterMCPServer:
                         },
                         "required": ["community_id", "ct0", "auth_token"]
                     }
+                ),
+                Tool(
+                    name="get_community_members",
+                    description="Retrieve members of a Twitter community by its ID",
+                    inputSchema={
+                        "type": "object",
+                        "properties": {
+                            "community_id": {
+                                "type": "string",
+                                "description": "The ID of the community"
+                            },
+                            "count": {
+                                "type": "integer",
+                                "description": "The number of members to retrieve (default: 20)",
+                                "default": 20
+                            },
+                            "ct0": {
+                                "type": "string",
+                                "description": "Twitter ct0 cookie (required)"
+                            },
+                            "auth_token": {
+                                "type": "string",
+                                "description": "Twitter auth_token cookie (required)"
+                            }
+                        },
+                        "required": ["community_id", "ct0", "auth_token"]
+                    }
+                ),
+                Tool(
+                    name="leave_community",
+                    description="Leave a Twitter community by its ID",
+                    inputSchema={
+                        "type": "object",
+                        "properties": {
+                            "community_id": {
+                                "type": "string",
+                                "description": "The ID of the community to leave"
+                            },
+                            "ct0": {
+                                "type": "string",
+                                "description": "Twitter ct0 cookie (required)"
+                            },
+                            "auth_token": {
+                                "type": "string",
+                                "description": "Twitter auth_token cookie (required)"
+                            }
+                        },
+                        "required": ["community_id", "ct0", "auth_token"]
+                    }
+                ),
+                Tool(
+                    name="get_community_tweets",
+                    description="Retrieve tweets from a Twitter community by its ID",
+                    inputSchema={
+                        "type": "object",
+                        "properties": {
+                            "community_id": {
+                                "type": "string",
+                                "description": "The ID of the community"
+                            },
+                            "tweet_type": {
+                                "type": "string",
+                                "description": "The type of tweets to retrieve ('Top', 'Latest', 'Media')",
+                                "enum": ["Top", "Latest", "Media"],
+                                "default": "Latest"
+                            },
+                            "count": {
+                                "type": "integer",
+                                "description": "The number of tweets to retrieve (default: 40)",
+                                "default": 40
+                            },
+                            "ct0": {
+                                "type": "string",
+                                "description": "Twitter ct0 cookie (required)"
+                            },
+                            "auth_token": {
+                                "type": "string",
+                                "description": "Twitter auth_token cookie (required)"
+                            }
+                        },
+                        "required": ["community_id", "tweet_type", "ct0", "auth_token"]
+                    }
+                ),
+                Tool(
+                    name="get_notifications",
+                    description="Retrieve notifications by type (All, Verified, Mentions)",
+                    inputSchema={
+                        "type": "object",
+                        "properties": {
+                            "type": {
+                                "type": "string",
+                                "description": "Type of notifications to retrieve ('All', 'Verified', 'Mentions')",
+                                "enum": ["All", "Verified", "Mentions"],
+                                "default": "All"
+                            },
+                            "count": {
+                                "type": "integer",
+                                "description": "Number of notifications to retrieve (default: 40)",
+                                "default": 40
+                            },
+                            "ct0": {
+                                "type": "string",
+                                "description": "Twitter ct0 cookie (required)"
+                            },
+                            "auth_token": {
+                                "type": "string",
+                                "description": "Twitter auth_token cookie (required)"
+                            }
+                        },
+                        "required": ["type", "ct0", "auth_token"]
+                    }
+                ),
+                Tool(
+                    name="get_dm_history_by_id",
+                    description="Retrieve DM conversation history with a specific user by user_id (with optional max_id)",
+                    inputSchema={
+                        "type": "object",
+                        "properties": {
+                            "user_id": {
+                                "type": "string",
+                                "description": "The ID of the user with whom the DM conversation history will be retrieved"
+                            },
+                            "max_id": {
+                                "type": "string",
+                                "description": "If specified, retrieves messages older than the specified max_id",
+                                "default": None
+                            },
+                            "ct0": {
+                                "type": "string",
+                                "description": "Twitter ct0 cookie (required)"
+                            },
+                            "auth_token": {
+                                "type": "string",
+                                "description": "Twitter auth_token cookie (required)"
+                            }
+                        },
+                        "required": ["user_id", "ct0", "auth_token"]
+                    }
+                ),
+                Tool(
+                    name="get_friends_ids",
+                    description="Fetch the IDs of the friends (following users) of a specified user (by user_id or screen_name)",
+                    inputSchema={
+                        "type": "object",
+                        "properties": {
+                            "user_id": {
+                                "type": "string",
+                                "description": "The ID of the user for whom to return results",
+                                "default": None
+                            },
+                            "screen_name": {
+                                "type": "string",
+                                "description": "The screen name of the user for whom to return results",
+                                "default": None
+                            },
+                            "count": {
+                                "type": "integer",
+                                "description": "The maximum number of IDs to retrieve (default: 5000)",
+                                "default": 5000
+                            },
+                            "ct0": {
+                                "type": "string",
+                                "description": "Twitter ct0 cookie (required)"
+                            },
+                            "auth_token": {
+                                "type": "string",
+                                "description": "Twitter auth_token cookie (required)"
+                            }
+                        },
+                        "required": ["ct0", "auth_token"]
+                    }
+                ),
+                Tool(
+                    name="get_user_followers",
+                    description="Retrieve a list of followers for a given user by user_id",
+                    inputSchema={
+                        "type": "object",
+                        "properties": {
+                            "user_id": {
+                                "type": "string",
+                                "description": "The ID of the user for whom to retrieve followers"
+                            },
+                            "count": {
+                                "type": "integer",
+                                "description": "The number of followers to retrieve (default: 20)",
+                                "default": 20
+                            },
+                            "ct0": {
+                                "type": "string",
+                                "description": "Twitter ct0 cookie (required)"
+                            },
+                            "auth_token": {
+                                "type": "string",
+                                "description": "Twitter auth_token cookie (required)"
+                            }
+                        },
+                        "required": ["user_id", "ct0", "auth_token"]
+                    }
                 )
             ]
 
@@ -647,11 +845,11 @@ class TwitterMCPServer:
                 
                 elif name == "add_reaction_to_message":
                     result = await self._add_reaction_to_message(client, arguments["message_id"], arguments["emoji"], arguments["conversation_id"])
-                    return [types.TextContent(type="text", text=f"Reaction added successfully: {json.dumps(result, indent=2)}")]
+                    return [types.TextContent(type="text", text=json.dumps(result, indent=2))]
                 
                 elif name == "delete_dm":
                     result = await self._delete_dm(client, arguments["message_id"])
-                    return [types.TextContent(type="text", text=f"DM deleted successfully: {json.dumps(result, indent=2)}")]
+                    return [types.TextContent(type="text", text=json.dumps(result, indent=2))]
                 
                 elif name == "get_tweet_replies":
                     count = arguments.get("count", 20)
@@ -682,6 +880,44 @@ class TwitterMCPServer:
                 
                 elif name == "join_community":
                     result = await self._join_community(client, arguments["community_id"])
+                    return [types.TextContent(type="text", text=json.dumps(result, indent=2))]
+                
+                elif name == "get_community_members":
+                    count = arguments.get("count", 20)
+                    result = await self._get_community_members(client, arguments["community_id"], count)
+                    return [types.TextContent(type="text", text=json.dumps(result, indent=2))]
+                
+                elif name == "leave_community":
+                    result = await self._leave_community(client, arguments["community_id"])
+                    return [types.TextContent(type="text", text=json.dumps(result, indent=2))]
+                
+                elif name == "get_community_tweets":
+                    tweet_type = arguments.get("tweet_type", "Latest")
+                    count = arguments.get("count", 40)
+                    result = await self._get_community_tweets(client, arguments["community_id"], tweet_type, count)
+                    return [types.TextContent(type="text", text=json.dumps(result, indent=2))]
+                
+                elif name == "get_notifications":
+                    notif_type = arguments.get("type", "All")
+                    count = arguments.get("count", 40)
+                    result = await self._get_notifications(client, notif_type, count)
+                    return [types.TextContent(type="text", text=json.dumps(result, indent=2))]
+                
+                elif name == "get_dm_history_by_id":
+                    max_id = arguments.get("max_id")
+                    result = await self._get_dm_history_by_id(client, arguments["user_id"], max_id)
+                    return [types.TextContent(type="text", text=json.dumps(result, indent=2))]
+                
+                elif name == "get_friends_ids":
+                    user_id = arguments.get("user_id")
+                    screen_name = arguments.get("screen_name")
+                    count = arguments.get("count", 5000)
+                    result = await self._get_friends_ids(client, user_id, screen_name, count)
+                    return [types.TextContent(type="text", text=json.dumps(result, indent=2))]
+                
+                elif name == "get_user_followers":
+                    count = arguments.get("count", 20)
+                    result = await self._get_user_followers(client, arguments["user_id"], count)
                     return [types.TextContent(type="text", text=json.dumps(result, indent=2))]
                 
                 else:
@@ -883,22 +1119,34 @@ class TwitterMCPServer:
             })
         return messages
 
-    async def _add_reaction_to_message(self, client: Client, message_id: str, emoji: str, conversation_id: str) -> Dict[str, Any]:
-        """Add a reaction (emoji) to a direct message"""
-        result = await client.add_reaction_to_message(message_id, conversation_id, emoji)
+    async def _add_reaction_to_message(self, client: Client, message_id: str, emoji: str, conversation_id: str) -> dict:
+        """Add a reaction (emoji) to a direct message using asyncadd_reaction_to_message"""
+        response = await client.asyncadd_reaction_to_message(message_id, conversation_id, emoji)
+        # Try to parse response if possible
+        try:
+            data = response.json() if hasattr(response, 'json') else str(response)
+        except Exception:
+            data = str(response)
         return {
             "success": True,
             "message_id": message_id,
+            "conversation_id": conversation_id,
             "emoji": emoji,
-            "conversation_id": conversation_id
+            "response": data
         }
 
-    async def _delete_dm(self, client: Client, message_id: str) -> Dict[str, Any]:
-        """Delete a direct message"""
-        result = await client.delete_dm(message_id)
+    async def _delete_dm(self, client: Client, message_id: str) -> dict:
+        """Delete a direct message by its ID using asyncdelete_dm"""
+        response = await client.asyncdelete_dm(message_id)
+        # Try to parse response if possible
+        try:
+            data = response.json() if hasattr(response, 'json') else str(response)
+        except Exception:
+            data = str(response)
         return {
             "success": True,
-            "message_id": message_id
+            "message_id": message_id,
+            "response": data
         }
 
     async def _get_tweet_replies(self, client: Client, tweet_id: str, count: int = 20) -> List[Dict[str, Any]]:
@@ -1007,6 +1255,106 @@ class TwitterMCPServer:
             "member_count": getattr(community, "member_count", None),
             "raw": community.__dict__ if hasattr(community, "__dict__") else str(community)
         }
+
+    async def _get_community_members(self, client: Client, community_id: str, count: int = 20) -> list:
+        """Retrieve members of a community by its ID"""
+        members_result = await client.asyncget_community_members(community_id, count=count)
+        members = []
+        for member in members_result:
+            members.append({
+                "id": getattr(member, "id", None),
+                "username": getattr(member, "screen_name", None),
+                "name": getattr(member, "name", None),
+                "description": getattr(member, "description", None),
+                "joined_at": str(getattr(member, "joined_at", "")),
+                "raw": member.__dict__ if hasattr(member, "__dict__") else str(member)
+            })
+        return members
+
+    async def _leave_community(self, client: Client, community_id: str) -> dict:
+        """Leave a community by its ID"""
+        community = await client.asyncleave_community(community_id)
+        return {
+            "id": getattr(community, "id", None),
+            "name": getattr(community, "name", None),
+            "description": getattr(community, "description", None),
+            "member_count": getattr(community, "member_count", None),
+            "raw": community.__dict__ if hasattr(community, "__dict__") else str(community)
+        }
+
+    async def _get_community_tweets(self, client: Client, community_id: str, tweet_type: str = "Latest", count: int = 40) -> list:
+        """Retrieve tweets from a community by its ID"""
+        tweets_result = await client.asyncget_community_tweets(community_id, tweet_type=tweet_type, count=count)
+        tweets = []
+        for tweet in tweets_result:
+            tweets.append({
+                "id": getattr(tweet, "id", None),
+                "text": getattr(tweet, "text", None),
+                "author": getattr(tweet.user, "screen_name", None) if hasattr(tweet, "user") else None,
+                "author_name": getattr(tweet.user, "name", None) if hasattr(tweet, "user") else None,
+                "created_at": str(getattr(tweet, "created_at", "")),
+                "like_count": getattr(tweet, "favorite_count", None),
+                "retweet_count": getattr(tweet, "retweet_count", None),
+                "reply_count": getattr(tweet, "reply_count", None),
+                "raw": tweet.__dict__ if hasattr(tweet, "__dict__") else str(tweet)
+            })
+        return tweets
+
+    async def _get_notifications(self, client: Client, notif_type: str = "All", count: int = 40) -> list:
+        """Retrieve notifications by type"""
+        notifications_result = await client.asyncget_notifications(notif_type, count=count)
+        notifications = []
+        for notif in notifications_result:
+            notifications.append({
+                "id": getattr(notif, "id", None),
+                "type": getattr(notif, "type", None),
+                "text": getattr(notif, "text", None),
+                "created_at": str(getattr(notif, "created_at", "")),
+                "user": getattr(notif, "user", None),
+                "raw": notif.__dict__ if hasattr(notif, "__dict__") else str(notif)
+            })
+        return notifications
+
+    async def _get_dm_history_by_id(self, client: Client, user_id: str, max_id: str = None) -> list:
+        """Retrieve DM conversation history with a specific user by user_id (with optional max_id)"""
+        result = await client.asyncget_dm_history(user_id, max_id=max_id)
+        messages = []
+        for message in result:
+            messages.append({
+                "id": getattr(message, "id", None),
+                "text": getattr(message, "text", None),
+                "time": str(getattr(message, "time", "")),
+                "sender_id": getattr(message, "sender_id", None),
+                "recipient_id": getattr(message, "recipient_id", None),
+                "attachment": getattr(message, "attachment", None),
+                "raw": message.__dict__ if hasattr(message, "__dict__") else str(message)
+            })
+        return messages
+
+    async def _get_friends_ids(self, client: Client, user_id: str = None, screen_name: str = None, count: int = 5000) -> list:
+        """Fetch the IDs of the friends (following users) of a specified user (by user_id or screen_name)"""
+        result = await client.asyncget_friends_ids(user_id=user_id, screen_name=screen_name, count=count)
+        ids = list(result) if result else []
+        return ids
+
+    async def _get_user_followers(self, client: Client, user_id: str, count: int = 20) -> list:
+        """Retrieve a list of followers for a given user by user_id"""
+        result = await client.asyncget_user_followers(user_id, count=count)
+        followers = []
+        for user in result:
+            followers.append({
+                "id": getattr(user, "id", None),
+                "username": getattr(user, "screen_name", None),
+                "name": getattr(user, "name", None),
+                "description": getattr(user, "description", None),
+                "followers_count": getattr(user, "followers_count", None),
+                "following_count": getattr(user, "following_count", None),
+                "tweet_count": getattr(user, "statuses_count", None),
+                "verified": getattr(user, "verified", None),
+                "created_at": str(getattr(user, "created_at", "")),
+                "raw": user.__dict__ if hasattr(user, "__dict__") else str(user)
+            })
+        return followers
 
     async def run(self):
         async with stdio_server() as (read_stream, write_stream):
