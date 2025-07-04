@@ -558,6 +558,28 @@ class TwitterMCPServer:
                         },
                         "required": ["tweet_id", "ct0", "auth_token"]
                     }
+                ),
+                Tool(
+                    name="join_community",
+                    description="Join a Twitter community by its ID",
+                    inputSchema={
+                        "type": "object",
+                        "properties": {
+                            "community_id": {
+                                "type": "string",
+                                "description": "The ID of the community to join"
+                            },
+                            "ct0": {
+                                "type": "string",
+                                "description": "Twitter ct0 cookie (required)"
+                            },
+                            "auth_token": {
+                                "type": "string",
+                                "description": "Twitter auth_token cookie (required)"
+                            }
+                        },
+                        "required": ["community_id", "ct0", "auth_token"]
+                    }
                 )
             ]
 
@@ -657,6 +679,10 @@ class TwitterMCPServer:
                 elif name == "unretweet":
                     result = await self._unretweet(client, arguments["tweet_id"])
                     return [types.TextContent(type="text", text=f"Unretweeted successfully: {json.dumps(result, indent=2)}")]
+                
+                elif name == "join_community":
+                    result = await self._join_community(client, arguments["community_id"])
+                    return [types.TextContent(type="text", text=json.dumps(result, indent=2))]
                 
                 else:
                     raise ValueError(f"Unknown tool: {name}")
@@ -969,6 +995,17 @@ class TwitterMCPServer:
         return {
             "success": True,
             "tweet_id": tweet_id
+        }
+
+    async def _join_community(self, client: Client, community_id: str) -> dict:
+        """Join a community by its ID"""
+        community = await client.asyncjoin_community(community_id)
+        return {
+            "id": getattr(community, "id", None),
+            "name": getattr(community, "name", None),
+            "description": getattr(community, "description", None),
+            "member_count": getattr(community, "member_count", None),
+            "raw": community.__dict__ if hasattr(community, "__dict__") else str(community)
         }
 
     async def run(self):
