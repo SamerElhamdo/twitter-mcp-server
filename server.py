@@ -138,6 +138,32 @@ class TwitterMCPServer:
                     }
                 ),
                 Tool(
+                    name="reply_to_tweet",
+                    description="Reply to a tweet",
+                    inputSchema={
+                        "type": "object",
+                        "properties": {
+                            "tweet_id": {
+                                "type": "string",
+                                "description": "The ID of the tweet to reply to"
+                            },
+                            "text": {
+                                "type": "string",
+                                "description": "The text content of the reply"
+                            },
+                            "ct0": {
+                                "type": "string",
+                                "description": "Twitter ct0 cookie (required)"
+                            },
+                            "auth_token": {
+                                "type": "string",
+                                "description": "Twitter auth_token cookie (required)"
+                            }
+                        },
+                        "required": ["tweet_id", "text", "ct0", "auth_token"]
+                    }
+                ),  
+                Tool(
                     name="get_user_info",
                     description="Get information about a Twitter user",
                     inputSchema={
@@ -856,6 +882,9 @@ class TwitterMCPServer:
                 elif name == "tweet":
                     result = await self._post_tweet(client, arguments["text"])
                     return [types.TextContent(type="text", text=f"Tweet posted successfully: {json.dumps(result, indent=2)}")]
+                elif name == "reply_to_tweet":
+                    result = await self._reply_to_tweet(client, arguments["tweet_id"], arguments["text"])
+                    return [types.TextContent(type="text", text=f"Tweet replied successfully: {json.dumps(result, indent=2)}")]
                 
                 elif name == "get_user_info":
                     result = await self._get_user_info(client, arguments["username"])
@@ -1051,6 +1080,16 @@ class TwitterMCPServer:
             "text": tweet.text,
             "created_at": str(tweet.created_at),
             "author": tweet.user.screen_name
+        }
+
+    async def _reply_to_tweet(self, client: Client, tweet_id: str, text: str) -> Dict[str, Any]:
+        """Reply to a tweet"""
+        reply = await client.create_tweet(text=text, reply_to=tweet_id)
+        return {
+            "id": reply.id,
+            "text": reply.text,
+            "created_at": str(reply.created_at),
+            "author": reply.user.screen_name
         }
 
     async def _get_user_info(self, client: Client, username: str) -> Dict[str, Any]:
@@ -1329,7 +1368,6 @@ class TwitterMCPServer:
                 "id": getattr(member, "id", None),
                 "username": getattr(member, "screen_name", None),
                 "name": getattr(member, "name", None),
-                "description": getattr(member, "description", None),
                 "joined_at": str(getattr(member, "joined_at", ""))
             })
         return members
