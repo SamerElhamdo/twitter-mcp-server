@@ -6,7 +6,6 @@ This server provides Twitter functionality through the Model Context Protocol (M
 It uses twikit for Twitter API interactions and supports authentication via ct0 and auth_token
 cookies provided by the LLM model or environment variables.
 """
-#فثسف
 
 
 import asyncio
