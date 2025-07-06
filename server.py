@@ -126,6 +126,16 @@ class TwitterMCPServer:
                                 "description": "The text content of the tweet",
                                 "maxLength": 280
                             },
+                            "reply_to": {
+                                "type": "string",
+                                "description": "The ID of the tweet to reply to (optional)",
+                                "default": None
+                            },
+                            "community_id": {
+                                "type": "string",
+                                "description": "The community ID to post the tweet in (optional)",
+                                "default": None
+                            },
                             "ct0": {
                                 "type": "string",
                                 "description": "Twitter ct0 cookie (required)"
@@ -138,32 +148,6 @@ class TwitterMCPServer:
                         "required": ["text", "ct0", "auth_token"]
                     }
                 ),
-                Tool(
-                    name="reply_to_tweet",
-                    description="Reply to a tweet",
-                    inputSchema={
-                        "type": "object",
-                        "properties": {
-                            "tweet_id": {
-                                "type": "string",
-                                "description": "The ID of the tweet to reply to"
-                            },
-                            "text": {
-                                "type": "string",
-                                "description": "The text content of the reply"
-                            },
-                            "ct0": {
-                                "type": "string",
-                                "description": "Twitter ct0 cookie (required)"
-                            },
-                            "auth_token": {
-                                "type": "string",
-                                "description": "Twitter auth_token cookie (required)"
-                            }
-                        },
-                        "required": ["tweet_id", "text", "ct0", "auth_token"]
-                    }
-                ),  
                 Tool(
                     name="get_user_info",
                     description="Get information about a Twitter user",
@@ -881,11 +865,10 @@ class TwitterMCPServer:
                     return [types.TextContent(type="text", text=json.dumps(result, indent=2))]
                 
                 elif name == "tweet":
-                    result = await self._post_tweet(client, arguments["text"])
+                    reply_to = arguments.get("reply_to")
+                    community_id = arguments.get("community_id")
+                    result = await self._post_tweet(client, arguments["text"], reply_to=reply_to, community_id=community_id)
                     return [types.TextContent(type="text", text=f"Tweet posted successfully: {json.dumps(result, indent=2)}")]
-                elif name == "reply_to_tweet":
-                    result = await self._reply_to_tweet(client, arguments["tweet_id"], arguments["text"])
-                    return [types.TextContent(type="text", text=f"Tweet replied successfully: {json.dumps(result, indent=2)}")]
                 
                 elif name == "get_user_info":
                     result = await self._get_user_info(client, arguments["username"])
@@ -1073,9 +1056,9 @@ class TwitterMCPServer:
             }
         }
 
-    async def _post_tweet(self, client: Client, text: str) -> Dict[str, Any]:
-        """Post a tweet"""
-        tweet = await client.create_tweet(text=text)
+    async def _post_tweet(self, client: Client, text: str, reply_to: str = None, community_id: str = None) -> Dict[str, Any]:
+        """Post a tweet, optionally as a reply or in a community"""
+        tweet = await client.create_tweet(text=text, reply_to=reply_to, community_id=community_id)
         return {
             "id": tweet.id,
             "text": tweet.text,
