@@ -1338,6 +1338,11 @@ class TwitterMCPServer:
     async def _join_community(self, client: Client, community_id: str) -> dict:
         """Join a community by its ID"""
         community = await client.join_community(community_id)
+        if not community:
+            return {
+                "success": False,
+                "error": "Failed to join community"
+            }
         return {
             "id": getattr(community, "id", None),
             "name": getattr(community, "name", None)
