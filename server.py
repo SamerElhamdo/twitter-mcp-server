@@ -862,16 +862,22 @@ class TwitterMCPServer:
                 
                 if name == "authenticate":
                     result = await self._test_authentication(client)
+                    if isinstance(result, dict) and not result.get("success", True):
+                        return [types.TextContent(type="text", text=json.dumps(result, indent=2))]
                     return [types.TextContent(type="text", text=json.dumps(result, indent=2))]
                 
                 elif name == "tweet":
                     reply_to = arguments.get("reply_to")
                     community_id = arguments.get("community_id")
                     result = await self._post_tweet(client, arguments["text"], reply_to=reply_to, community_id=community_id)
+                    if isinstance(result, dict) and not result.get("success", True):
+                        return [types.TextContent(type="text", text=json.dumps(result, indent=2))]
                     return [types.TextContent(type="text", text=f"Tweet posted successfully: {json.dumps(result, indent=2)}")]
                 
                 elif name == "get_user_info":
                     result = await self._get_user_info(client, arguments["username"])
+                    if isinstance(result, dict) and not result.get("success", True):
+                        return [types.TextContent(type="text", text=json.dumps(result, indent=2))]
                     return [types.TextContent(type="text", text=json.dumps(result, indent=2))]
                 
                 elif name == "search_tweets":
@@ -882,98 +888,140 @@ class TwitterMCPServer:
                         product = "Latest"
                     
                     result = await self._search_tweets(client, arguments["query"], count, product)
+                    if isinstance(result, list) and not result[0].get("success", True):
+                        return [types.TextContent(type="text", text=json.dumps(result[0], indent=2))]
                     return [types.TextContent(type="text", text=json.dumps(result, indent=2))]
                 
                 elif name == "get_timeline":
                     count = arguments.get("count", 20)
                     result = await self._get_timeline(client, count)
+                    if isinstance(result, list) and not result[0].get("success", True):
+                        return [types.TextContent(type="text", text=json.dumps(result[0], indent=2))]
                     return [types.TextContent(type="text", text=json.dumps(result, indent=2))]
                 
                 elif name == "get_latest_timeline":
                     count = arguments.get("count", 20)
                     result = await self._get_latest_timeline(client, count)
+                    if isinstance(result, list) and not result[0].get("success", True):
+                        return [types.TextContent(type="text", text=json.dumps(result[0], indent=2))]
                     return [types.TextContent(type="text", text=json.dumps(result, indent=2))]
                 
                 elif name == "like_tweet":
                     result = await self._like_tweet(client, arguments["tweet_id"])
+                    if isinstance(result, dict) and not result.get("success", True):
+                        return [types.TextContent(type="text", text=json.dumps(result, indent=2))]
                     return [types.TextContent(type="text", text=f"Tweet liked successfully: {json.dumps(result, indent=2)}")]
                 
                 elif name == "retweet":
                     result = await self._retweet(client, arguments["tweet_id"])
+                    if isinstance(result, dict) and not result.get("success", True):
+                        return [types.TextContent(type="text", text=json.dumps(result, indent=2))]
                     return [types.TextContent(type="text", text=f"Tweet retweeted successfully: {json.dumps(result, indent=2)}")]
                 
                 elif name == "send_dm":
                     result = await self._send_dm(client, arguments["recipient_username"], arguments["text"])
+                    if isinstance(result, dict) and not result.get("success", True):
+                        return [types.TextContent(type="text", text=json.dumps(result, indent=2))]
                     return [types.TextContent(type="text", text=f"DM sent successfully: {json.dumps(result, indent=2)}")]
                 
                 elif name == "get_dm_history":
                     count = arguments.get("count", 20)
                     result = await self._get_dm_history(client, arguments["recipient_username"], count)
+                    if isinstance(result, list) and not result[0].get("success", True):
+                        return [types.TextContent(type="text", text=json.dumps(result[0], indent=2))]
                     return [types.TextContent(type="text", text=json.dumps(result, indent=2))]
                 
                 elif name == "add_reaction_to_message":
                     result = await self._add_reaction_to_message(client, arguments["message_id"], arguments["emoji"], arguments["conversation_id"])
+                    if isinstance(result, dict) and not result.get("success", True):
+                        return [types.TextContent(type="text", text=json.dumps(result, indent=2))]
                     return [types.TextContent(type="text", text=json.dumps(result, indent=2))]
                 
                 elif name == "delete_dm":
                     result = await self._delete_dm(client, arguments["message_id"])
+                    if isinstance(result, dict) and not result.get("success", True):
+                        return [types.TextContent(type="text", text=json.dumps(result, indent=2))]
                     return [types.TextContent(type="text", text=json.dumps(result, indent=2))]
                 
                 elif name == "get_tweet_replies":
                     count = arguments.get("count", 20)
                     result = await self._get_tweet_replies(client, arguments["tweet_id"], count)
+                    if isinstance(result, list) and not result[0].get("success", True):
+                        return [types.TextContent(type="text", text=json.dumps(result[0], indent=2))]
                     return [types.TextContent(type="text", text=json.dumps(result, indent=2))]
                 
                 elif name == "get_trends":
                     category = arguments.get("category", "trending")
                     count = arguments.get("count", 20)
                     result = await self._get_trends(client, category, count)
+                    if isinstance(result, list) and not result[0].get("success", True):
+                        return [types.TextContent(type="text", text=json.dumps(result[0], indent=2))]
                     return [types.TextContent(type="text", text=json.dumps(result, indent=2))]
                 
                 elif name == "delete_tweet":
                     result = await self._delete_tweet(client, arguments["tweet_id"])
+                    if isinstance(result, dict) and not result.get("success", True):
+                        return [types.TextContent(type="text", text=f"Tweet deleted successfully: {json.dumps(result, indent=2)}")]
                     return [types.TextContent(type="text", text=f"Tweet deleted successfully: {json.dumps(result, indent=2)}")]
                 
                 elif name == "follow_user":
                     result = await self._follow_user(client, arguments["username"])
+                    if isinstance(result, dict) and not result.get("success", True):
+                        return [types.TextContent(type="text", text=f"Followed user successfully: {json.dumps(result, indent=2)}")]
                     return [types.TextContent(type="text", text=f"Followed user successfully: {json.dumps(result, indent=2)}")]
                 
                 elif name == "unfollow_user":
                     result = await self._unfollow_user(client, arguments["username"])
+                    if isinstance(result, dict) and not result.get("success", True):
+                        return [types.TextContent(type="text", text=f"Unfollowed user successfully: {json.dumps(result, indent=2)}")]
                     return [types.TextContent(type="text", text=f"Unfollowed user successfully: {json.dumps(result, indent=2)}")]
                 
                 elif name == "unretweet":
                     result = await self._unretweet(client, arguments["tweet_id"])
+                    if isinstance(result, dict) and not result.get("success", True):
+                        return [types.TextContent(type="text", text=f"Unretweeted successfully: {json.dumps(result, indent=2)}")]
                     return [types.TextContent(type="text", text=f"Unretweeted successfully: {json.dumps(result, indent=2)}")]
                 
                 elif name == "join_community":
                     result = await self._join_community(client, arguments["community_id"])
+                    if isinstance(result, dict) and not result.get("success", True):
+                        return [types.TextContent(type="text", text=json.dumps(result, indent=2))]
                     return [types.TextContent(type="text", text=json.dumps(result, indent=2))]
                 
                 elif name == "get_community_members":
                     count = arguments.get("count", 20)
                     result = await self._get_community_members(client, arguments["community_id"], count)
+                    if isinstance(result, list) and not result[0].get("success", True):
+                        return [types.TextContent(type="text", text=json.dumps(result[0], indent=2))]
                     return [types.TextContent(type="text", text=json.dumps(result, indent=2))]
                 
                 elif name == "leave_community":
                     result = await self._leave_community(client, arguments["community_id"])
+                    if isinstance(result, dict) and not result.get("success", True):
+                        return [types.TextContent(type="text", text=json.dumps(result, indent=2))]
                     return [types.TextContent(type="text", text=json.dumps(result, indent=2))]
                 
                 elif name == "get_community_tweets":
                     tweet_type = arguments.get("tweet_type", "Latest")
                     count = arguments.get("count", 40)
                     result = await self._get_community_tweets(client, arguments["community_id"], tweet_type, count)
+                    if isinstance(result, list) and not result[0].get("success", True):
+                        return [types.TextContent(type="text", text=json.dumps(result[0], indent=2))]
                     return [types.TextContent(type="text", text=json.dumps(result, indent=2))]
                 
                 elif name == "get_notifications":
                     notif_type = arguments.get("type", "All")
                     count = arguments.get("count", 40)
                     result = await self._get_notifications(client, notif_type, count)
+                    if isinstance(result, list) and not result[0].get("success", True):
+                        return [types.TextContent(type="text", text=json.dumps(result[0], indent=2))]
                     return [types.TextContent(type="text", text=json.dumps(result, indent=2))]
                 
                 elif name == "get_dm_history_by_id":
                     max_id = arguments.get("max_id")
                     result = await self._get_dm_history_by_id(client, arguments["user_id"], max_id)
+                    if isinstance(result, list) and not result[0].get("success", True):
+                        return [types.TextContent(type="text", text=json.dumps(result[0], indent=2))]
                     return [types.TextContent(type="text", text=json.dumps(result, indent=2))]
                 
                 elif name == "get_friends_ids":
@@ -981,23 +1029,33 @@ class TwitterMCPServer:
                     screen_name = arguments.get("screen_name")
                     count = arguments.get("count", 5000)
                     result = await self._get_friends_ids(client, user_id, screen_name, count)
+                    if isinstance(result, list) and not result[0].get("success", True):
+                        return [types.TextContent(type="text", text=json.dumps(result[0], indent=2))]
                     return [types.TextContent(type="text", text=json.dumps(result, indent=2))]
                 
                 elif name == "get_user_followers":
                     count = arguments.get("count", 20)
                     result = await self._get_user_followers(client, arguments["user_id"], count)
+                    if isinstance(result, list) and not result[0].get("success", True):
+                        return [types.TextContent(type="text", text=json.dumps(result[0], indent=2))]
                     return [types.TextContent(type="text", text=json.dumps(result, indent=2))]
                 
                 elif name == "unlock":
                     result = await self._unlock(client)
+                    if isinstance(result, dict) and not result.get("success", True):
+                        return [types.TextContent(type="text", text=json.dumps(result, indent=2))]
                     return [types.TextContent(type="text", text=json.dumps(result, indent=2))]
                 
                 elif name == "get_cookies":
                     result = await self._get_cookies(client)
+                    if isinstance(result, dict) and not result.get("success", True):
+                        return [types.TextContent(type="text", text=json.dumps(result, indent=2))]
                     return [types.TextContent(type="text", text=json.dumps(result, indent=2))]
                 
                 elif name == "set_cookies":
                     result = await self._set_cookies(arguments["cookies"], arguments.get("clear_cookies", False))
+                    if isinstance(result, dict) and not result.get("success", True):
+                        return [types.TextContent(type="text", text=json.dumps(result, indent=2))]
                     return [types.TextContent(type="text", text=json.dumps(result, indent=2))]
                 
                 else:
@@ -1057,207 +1115,248 @@ class TwitterMCPServer:
         }
 
     async def _post_tweet(self, client: Client, text: str, reply_to: str = None, community_id: str = None) -> Dict[str, Any]:
-        """Post a tweet, optionally as a reply or in a community"""
-        tweet = await client.create_tweet(text=text, reply_to=reply_to, community_id=community_id)
-        return {
-            "id": tweet.id,
-            "text": tweet.text,
-            "created_at": str(tweet.created_at),
-            "author": tweet.user.screen_name
-        }
+        try:
+            tweet = await client.create_tweet(text=text, reply_to=reply_to, community_id=community_id)
+            if not tweet:
+                return {"success": False, "error": "Failed to post tweet"}
+            return {
+                "success": True,
+                "id": tweet.id,
+                "text": tweet.text,
+                "created_at": str(tweet.created_at),
+                "author": tweet.user.screen_name
+            }
+        except Exception as e:
+            return {"success": False, "error": str(e)}
 
     async def _reply_to_tweet(self, client: Client, tweet_id: str, text: str) -> Dict[str, Any]:
-        """Reply to a tweet"""
-        reply = await client.create_tweet(text=text, reply_to=tweet_id)
-        return {
-            "id": reply.id,
-            "text": reply.text,
-            "created_at": str(reply.created_at),
-            "author": reply.user.screen_name
-        }
+        try:
+            reply = await client.create_tweet(text=text, reply_to=tweet_id)
+            if not reply:
+                return {"success": False, "error": "Failed to reply to tweet"}
+            return {
+                "success": True,
+                "id": reply.id,
+                "text": reply.text,
+                "created_at": str(reply.created_at),
+                "author": reply.user.screen_name
+            }
+        except Exception as e:
+            return {"success": False, "error": str(e)}
 
     async def _get_user_info(self, client: Client, username: str) -> Dict[str, Any]:
-        """Get user information"""
-        user = await client.get_user_by_screen_name(username)
-        return {
-            "id": user.id,
-            "username": user.screen_name,
-            "name": user.name,
-            "description": user.description,
-            "followers_count": user.followers_count,
-            "following_count": user.following_count,
-            "tweet_count": user.statuses_count,
-            "verified": user.verified,
-            "created_at": str(user.created_at)
-        }
+        try:
+            user = await client.get_user_by_screen_name(username)
+            if not user:
+                return {"success": False, "error": "User not found"}
+            return {
+                "success": True,
+                "id": user.id,
+                "username": user.screen_name,
+                "name": user.name,
+                "description": user.description,
+                "followers_count": user.followers_count,
+                "following_count": user.following_count,
+                "tweet_count": user.statuses_count,
+                "verified": user.verified,
+                "created_at": str(user.created_at)
+            }
+        except Exception as e:
+            return {"success": False, "error": str(e)}
 
     async def _search_tweets(self, client: Client, query: str, count: int = 20, product: str = "Latest") -> List[Dict[str, Any]]:
-        """Search for tweets"""
-        tweets = await client.search_tweet(query, product=product, count=count)
-        return [
-            {
-                "id": tweet.id,
-                "text": tweet.text,
-                "author": tweet.user.screen_name,
-                "author_name": tweet.user.name,
-                "created_at": str(tweet.created_at),
-                "like_count": tweet.favorite_count,
-                "retweet_count": tweet.retweet_count,
-                "reply_count": tweet.reply_count
-            }
-            for tweet in tweets
-        ]
+        try:
+            tweets = await client.search_tweet(query, product=product, count=count)
+            if not tweets:
+                return [{"success": False, "error": "No tweets found"}]
+            return [
+                {
+                    "id": tweet.id,
+                    "text": tweet.text,
+                    "author": tweet.user.screen_name,
+                    "author_name": tweet.user.name,
+                    "created_at": str(tweet.created_at),
+                    "like_count": tweet.favorite_count,
+                    "retweet_count": tweet.retweet_count,
+                    "reply_count": tweet.reply_count
+                }
+                for tweet in tweets
+            ]
+        except Exception as e:
+            return [{"success": False, "error": str(e)}]
 
     async def _get_timeline(self, client: Client, count: int = 20) -> List[Dict[str, Any]]:
-        """Get timeline tweets"""
-        # Use get_timeline() instead of get_home_timeline()
-        tweets = await client.get_timeline(count=count)
-        return [
-            {
-                "id": tweet.id,
-                "text": tweet.text,
-                "author": tweet.user.screen_name,
-                "author_name": tweet.user.name,
-                "created_at": str(tweet.created_at),
-                "like_count": tweet.favorite_count,
-                "retweet_count": tweet.retweet_count,
-                "reply_count": tweet.reply_count
-            }
-            for tweet in tweets
-        ]
+        try:
+            tweets = await client.get_timeline(count=count)
+            if not tweets:
+                return [{"success": False, "error": "No timeline tweets found"}]
+            return [
+                {
+                    "id": tweet.id,
+                    "text": tweet.text,
+                    "author": tweet.user.screen_name,
+                    "author_name": tweet.user.name,
+                    "created_at": str(tweet.created_at),
+                    "like_count": tweet.favorite_count,
+                    "retweet_count": tweet.retweet_count,
+                    "reply_count": tweet.reply_count
+                }
+                for tweet in tweets
+            ]
+        except Exception as e:
+            return [{"success": False, "error": str(e)}]
 
     async def _get_user_tweets(self, client: Client, username: str, count: int = 20) -> List[Dict[str, Any]]:
-        """Get tweets from a specific user"""
-        user = await client.get_user_by_screen_name(username)
-        tweets = await client.get_user_tweets(user.id, tweet_type='Tweets', count=count)
-        return [
-            {
-                "id": tweet.id,
-                "text": tweet.text,
-                "author": tweet.user.screen_name,
-                "author_name": tweet.user.name,
-                "created_at": str(tweet.created_at),
-                "like_count": tweet.favorite_count,
-                "retweet_count": tweet.retweet_count,
-                "reply_count": tweet.reply_count
-            }
-            for tweet in tweets
-        ]
+        try:
+            user = await client.get_user_by_screen_name(username)
+            if not user:
+                return [{"success": False, "error": "User not found"}]
+            tweets = await client.get_user_tweets(user.id, tweet_type='Tweets', count=count)
+            if not tweets:
+                return [{"success": False, "error": "No tweets found for user"}]
+            return [
+                {
+                    "id": tweet.id,
+                    "text": tweet.text,
+                    "author": tweet.user.screen_name,
+                    "author_name": tweet.user.name,
+                    "created_at": str(tweet.created_at),
+                    "like_count": tweet.favorite_count,
+                    "retweet_count": tweet.retweet_count,
+                    "reply_count": tweet.reply_count
+                }
+                for tweet in tweets
+            ]
+        except Exception as e:
+            return [{"success": False, "error": str(e)}]
 
     async def _like_tweet(self, client: Client, tweet_id: str) -> Dict[str, Any]:
-        """Like a tweet"""
-        result = await client.favorite_tweet(tweet_id)
-        return {"success": True, "tweet_id": tweet_id}
+        try:
+            result = await client.favorite_tweet(tweet_id)
+            if not result:
+                return {"success": False, "error": "Failed to like tweet"}
+            return {"success": True, "tweet_id": tweet_id}
+        except Exception as e:
+            return {"success": False, "error": str(e)}
 
     async def _retweet(self, client: Client, tweet_id: str) -> Dict[str, Any]:
-        """Retweet a tweet"""
-        result = await client.retweet(tweet_id)
-        return {"success": True, "tweet_id": tweet_id}
+        try:
+            result = await client.retweet(tweet_id)
+            if not result:
+                return {"success": False, "error": "Failed to retweet"}
+            return {"success": True, "tweet_id": tweet_id}
+        except Exception as e:
+            return {"success": False, "error": str(e)}
 
     async def _get_latest_timeline(self, client: Client, count: int = 20) -> List[Dict[str, Any]]:
-        """Get latest timeline tweets"""
-        # Use get_latest_timeline() instead of get_home_timeline()
-        tweets = await client.get_latest_timeline(count=count)
-        return [
-            {
-                "id": tweet.id,
-                "text": tweet.text,
-                "author": tweet.user.screen_name,
-                "author_name": tweet.user.name,
-                "created_at": str(tweet.created_at),
-                "like_count": tweet.favorite_count,
-                "retweet_count": tweet.retweet_count,
-                "reply_count": tweet.reply_count
-            }
-            for tweet in tweets
-        ]
+        try:
+            tweets = await client.get_latest_timeline(count=count)
+            if not tweets:
+                return [{"success": False, "error": "No latest timeline tweets found"}]
+            return [
+                {
+                    "id": tweet.id,
+                    "text": tweet.text,
+                    "author": tweet.user.screen_name,
+                    "author_name": tweet.user.name,
+                    "created_at": str(tweet.created_at),
+                    "like_count": tweet.favorite_count,
+                    "retweet_count": tweet.retweet_count,
+                    "reply_count": tweet.reply_count
+                }
+                for tweet in tweets
+            ]
+        except Exception as e:
+            return [{"success": False, "error": str(e)}]
 
     async def _send_dm(self, client: Client, recipient_username: str, text: str) -> Dict[str, Any]:
-        """Send a direct message to a user"""
-        # First get the user_id from the username
-        user = await client.get_user_by_screen_name(recipient_username)
-        user_id = user.id
-        
-        result = await client.send_dm(user_id, text)
-        return {
-            "success": True,
-            "recipient_username": recipient_username,
-            "recipient_user_id": user_id,
-            "text": text,
-            "message_id": result.id,
-            "created_at": str(result.time)
-        }
+        try:
+            user = await client.get_user_by_screen_name(recipient_username)
+            if not user:
+                return {"success": False, "error": "Recipient user not found"}
+            user_id = user.id
+            result = await client.send_dm(user_id, text)
+            if not result:
+                return {"success": False, "error": "Failed to send DM"}
+            return {
+                "success": True,
+                "recipient_username": recipient_username,
+                "recipient_user_id": user_id,
+                "text": text,
+                "message_id": result.id,
+                "created_at": str(result.time)
+            }
+        except Exception as e:
+            return {"success": False, "error": str(e)}
 
     async def _get_dm_history(self, client: Client, recipient_username: str, count: int = 20) -> List[Dict[str, Any]]:
-        """Get direct message history with a user"""
-        # First get the user_id from the username
-        user = await client.get_user_by_screen_name(recipient_username)
-        user_id = user.id
-        
-        result = await client.get_dm_history(user_id)
-        messages = []
-        for i, message in enumerate(result):
-            if i >= count:  # Limit to requested count
-                break
-            messages.append({
-                "id": message.id,
-                "text": message.text,
-                "time": str(message.time),
-                "sender_id": getattr(message, 'sender_id', None),
-                "recipient_id": getattr(message, 'recipient_id', None),
-                "attachment": getattr(message, 'attachment', None)
-            })
-        return messages
+        try:
+            user = await client.get_user_by_screen_name(recipient_username)
+            if not user:
+                return [{"success": False, "error": "Recipient user not found"}]
+            user_id = user.id
+            result = await client.get_dm_history(user_id)
+            if not result:
+                return [{"success": False, "error": "No DM history found"}]
+            messages = []
+            for i, message in enumerate(result):
+                if i >= count:
+                    break
+                messages.append({
+                    "id": message.id,
+                    "text": message.text,
+                    "time": str(message.time),
+                    "sender_id": getattr(message, 'sender_id', None),
+                    "recipient_id": getattr(message, 'recipient_id', None),
+                    "attachment": getattr(message, 'attachment', None)
+                })
+            return messages
+        except Exception as e:
+            return [{"success": False, "error": str(e)}]
 
     async def _add_reaction_to_message(self, client: Client, message_id: str, emoji: str, conversation_id: str) -> dict:
-        """Add a reaction (emoji) to a direct message using asyncadd_reaction_to_message"""
-        response = await client.add_reaction_to_message(message_id, conversation_id, emoji)
-        # Try to parse response if possible
         try:
-            data = response.json() if hasattr(response, 'json') else str(response)
-        except Exception:
-            data = str(response)
-        return {
-            "success": True,
-            "message_id": message_id,
-            "conversation_id": conversation_id,
-            "emoji": emoji,
-            "response": data
-        }
+            response = await client.add_reaction_to_message(message_id, conversation_id, emoji)
+            try:
+                data = response.json() if hasattr(response, 'json') else str(response)
+            except Exception:
+                data = str(response)
+            return {
+                "success": True,
+                "message_id": message_id,
+                "conversation_id": conversation_id,
+                "emoji": emoji,
+                "response": data
+            }
+        except Exception as e:
+            return {"success": False, "error": str(e)}
 
     async def _delete_dm(self, client: Client, message_id: str) -> dict:
-        """Delete a direct message by its ID using asyncdelete_dm"""
-        response = await client.delete_dm(message_id)
-        # Try to parse response if possible
         try:
-            data = response.json() if hasattr(response, 'json') else str(response)
-        except Exception:
-            data = str(response)
-        return {
-            "success": True,
-            "message_id": message_id,
-            "response": data
-        }
+            response = await client.delete_dm(message_id)
+            try:
+                data = response.json() if hasattr(response, 'json') else str(response)
+            except Exception:
+                data = str(response)
+            return {
+                "success": True,
+                "message_id": message_id,
+                "response": data
+            }
+        except Exception as e:
+            return {"success": False, "error": str(e)}
 
     async def _get_tweet_replies(self, client: Client, tweet_id: str, count: int = 20) -> List[Dict[str, Any]]:
-        """Get replies to a specific tweet"""
         try:
-            # Get the tweet by ID, which should include replies
             tweet = await client.get_tweet_by_id(tweet_id)
-            
             if not tweet:
-                return {"error": "Tweet not found"}
-            
+                return [{"success": False, "error": "Tweet not found"}]
             replies_data = []
-            
-            # Check if tweet has replies attribute and it's not None
             if hasattr(tweet, 'replies') and tweet.replies is not None:
-                # The replies attribute should be a Result object that we can iterate over
                 reply_count = 0
                 for reply in tweet.replies:
                     if reply_count >= count:
                         break
-                    
                     replies_data.append({
                         "id": reply.id,
                         "text": reply.text,
@@ -1271,189 +1370,244 @@ class TwitterMCPServer:
                         "in_reply_to": reply.in_reply_to
                     })
                     reply_count += 1
-            
-            return {
-                "original_tweet": {
-                    "id": tweet.id,
-                    "text": tweet.text,
-                    "author": tweet.user.screen_name,
-                    "reply_count": tweet.reply_count
-                },
-                "replies": replies_data,
-                "total_replies_retrieved": len(replies_data)
-            }
-            
+            return replies_data
         except Exception as e:
-            return {"error": f"Failed to get tweet replies: {str(e)}"}
+            return [{"success": False, "error": str(e)}]
 
     async def _get_trends(self, client: Client, category: str, count: int) -> List[Dict[str, Any]]:
-        """Get trending topics on Twitter"""
-        trends = await client.get_trends(category, count)
-        return [
-            {
-                "name": trend.name,
-                "tweets_count": trend.tweets_count,
-                "domain_context": trend.domain_context,
-                "grouped_trends": trend.grouped_trends
-            }
-            for trend in trends
-        ]
+        try:
+            trends = await client.get_trends(category, count)
+            if not trends:
+                return [{"success": False, "error": "No trends found"}]
+            return [
+                {
+                    "name": trend.name,
+                    "tweets_count": trend.tweets_count,
+                    "domain_context": trend.domain_context,
+                    "grouped_trends": trend.grouped_trends
+                }
+                for trend in trends
+            ]
+        except Exception as e:
+            return [{"success": False, "error": str(e)}]
 
     async def _delete_tweet(self, client: Client, tweet_id: str) -> Dict[str, Any]:
-        """Delete a tweet by ID"""
-        result = await client.delete_tweet(tweet_id)
-        return {
-            "success": True,
-            "tweet_id": tweet_id
-        }
+        try:
+            result = await client.delete_tweet(tweet_id)
+            if not result:
+                return {"success": False, "error": "Failed to delete tweet"}
+            return {
+                "success": True,
+                "tweet_id": tweet_id
+            }
+        except Exception as e:
+            return {"success": False, "error": str(e)}
 
     async def _follow_user(self, client: Client, username: str) -> Dict[str, Any]:
-        """Follow a user by username"""
-        user = await client.get_user_by_screen_name(username)
-        result = await client.follow_user(user.id)
-        return {
-            "success": True,
-            "username": username,
-            "user_id": user.id
-        }
+        try:
+            user = await client.get_user_by_screen_name(username)
+            if not user:
+                return {"success": False, "error": "User not found"}
+            result = await client.follow_user(user.id)
+            if not result:
+                return {"success": False, "error": "Failed to follow user"}
+            return {
+                "success": True,
+                "username": username,
+                "user_id": user.id
+            }
+        except Exception as e:
+            return {"success": False, "error": str(e)}
 
     async def _unfollow_user(self, client: Client, username: str) -> Dict[str, Any]:
-        """Unfollow a user by username"""
-        user = await client.get_user_by_screen_name(username)
-        result = await client.unfollow_user(user.id)
-        return {
-            "success": True,
-            "username": username,
-            "user_id": user.id
-        }
+        try:
+            user = await client.get_user_by_screen_name(username)
+            if not user:
+                return {"success": False, "error": "User not found"}
+            result = await client.unfollow_user(user.id)
+            if not result:
+                return {"success": False, "error": "Failed to unfollow user"}
+            return {
+                "success": True,
+                "username": username,
+                "user_id": user.id
+            }
+        except Exception as e:
+            return {"success": False, "error": str(e)}
 
     async def _unretweet(self, client: Client, tweet_id: str) -> Dict[str, Any]:
-        """Undo a retweet by tweet ID"""
-        result = await client.delete_retweet(tweet_id)
-        return {
-            "success": True,
-            "tweet_id": tweet_id
-        }
+        try:
+            result = await client.delete_retweet(tweet_id)
+            if not result:
+                return {"success": False, "error": "Failed to unretweet"}
+            return {
+                "success": True,
+                "tweet_id": tweet_id
+            }
+        except Exception as e:
+            return {"success": False, "error": str(e)}
 
     async def _join_community(self, client: Client, community_id: str) -> dict:
-        """Join a community by its ID"""
-        community = await client.join_community(community_id)
-        if not community:
+        try:
+            community = await client.join_community(community_id)
+            if not community:
+                return {
+                    "success": False,
+                    "error": "Failed to join community"
+                }
             return {
-                "success": False,
-                "error": "Failed to join community"
+                "success": True,
+                "id": getattr(community, "id", None),
+                "name": getattr(community, "name", None)
             }
-        return {
-            "id": getattr(community, "id", None),
-            "name": getattr(community, "name", None)
-        }
+        except Exception as e:
+            return {"success": False, "error": str(e)}
 
     async def _get_community_members(self, client: Client, community_id: str, count: int = 20) -> list:
-        """Retrieve members of a community by its ID"""
-        members_result = await client.get_community_members(community_id, count=count)
-        members = []
-        for member in members_result:
-            members.append({
-                "id": getattr(member, "id", None),
-                "username": getattr(member, "screen_name", None),
-                "name": getattr(member, "name", None),
-                "joined_at": str(getattr(member, "joined_at", ""))
-            })
-        return members
+        try:
+            members_result = await client.get_community_members(community_id, count=count)
+            if not members_result:
+                return [{"success": False, "error": "No community members found"}]
+            members = []
+            for member in members_result:
+                members.append({
+                    "id": getattr(member, "id", None),
+                    "username": getattr(member, "screen_name", None),
+                    "name": getattr(member, "name", None),
+                    "joined_at": str(getattr(member, "joined_at", ""))
+                })
+            return members
+        except Exception as e:
+            return [{"success": False, "error": str(e)}]
 
     async def _leave_community(self, client: Client, community_id: str) -> dict:
-        """Leave a community by its ID"""
-        community = await client.leave_community(community_id)
-        return {
-            "id": getattr(community, "id", None),
-            "name": getattr(community, "name", None)
-        }
+        try:
+            community = await client.leave_community(community_id)
+            if not community:
+                return {"success": False, "error": "Failed to leave community"}
+            return {
+                "success": True,
+                "id": getattr(community, "id", None),
+                "name": getattr(community, "name", None)
+            }
+        except Exception as e:
+            return {"success": False, "error": str(e)}
 
     async def _get_community_tweets(self, client: Client, community_id: str, tweet_type: str = "Latest", count: int = 40) -> list:
-        """Retrieve tweets from a community by its ID"""
-        tweets_result = await client.get_community_tweets(community_id, tweet_type=tweet_type, count=count)
-        tweets = []
-        for tweet in tweets_result:
-            tweets.append({
-                "id": getattr(tweet, "id", None),
-                "text": getattr(tweet, "text", None),
-                "author": getattr(tweet.user, "screen_name", None) if hasattr(tweet, "user") else None,
-                "author_name": getattr(tweet.user, "name", None) if hasattr(tweet, "user") else None,
-                "created_at": str(getattr(tweet, "created_at", "")),
-                "like_count": getattr(tweet, "favorite_count", None),
-                "retweet_count": getattr(tweet, "retweet_count", None),
-                "reply_count": getattr(tweet, "reply_count", None)
-            })
-        return tweets
+        try:
+            tweets_result = await client.get_community_tweets(community_id, tweet_type=tweet_type, count=count)
+            if not tweets_result:
+                return [{"success": False, "error": "No community tweets found"}]
+            tweets = []
+            for tweet in tweets_result:
+                tweets.append({
+                    "id": getattr(tweet, "id", None),
+                    "text": getattr(tweet, "text", None),
+                    "author": getattr(tweet.user, "screen_name", None) if hasattr(tweet, "user") else None,
+                    "author_name": getattr(tweet.user, "name", None) if hasattr(tweet, "user") else None,
+                    "created_at": str(getattr(tweet, "created_at", "")),
+                    "like_count": getattr(tweet, "favorite_count", None),
+                    "retweet_count": getattr(tweet, "retweet_count", None),
+                    "reply_count": getattr(tweet, "reply_count", None)
+                })
+            return tweets
+        except Exception as e:
+            return [{"success": False, "error": str(e)}]
 
     async def _get_notifications(self, client: Client, notif_type: str = "All", count: int = 40) -> list:
-        """Retrieve notifications by type"""
-        notifications_result = await client.get_notifications(notif_type, count=count)
-        notifications = []
-        for notif in notifications_result:
-            notifications.append({
-                "id": getattr(notif, "id", None),
-                "type": getattr(notif, "type", None),
-                "text": getattr(notif, "text", None),
-                "created_at": str(getattr(notif, "created_at", "")),
-                "user": getattr(notif, "user", None)
-            })
-        return notifications
+        try:
+            notifications_result = await client.get_notifications(notif_type, count=count)
+            if not notifications_result:
+                return [{"success": False, "error": "No notifications found"}]
+            notifications = []
+            for notif in notifications_result:
+                notifications.append({
+                    "id": getattr(notif, "id", None),
+                    "type": getattr(notif, "type", None),
+                    "text": getattr(notif, "text", None),
+                    "created_at": str(getattr(notif, "created_at", "")),
+                    "user": getattr(notif, "user", None)
+                })
+            return notifications
+        except Exception as e:
+            return [{"success": False, "error": str(e)}]
 
     async def _get_dm_history_by_id(self, client: Client, user_id: str, max_id: str = None) -> list:
-        """Retrieve DM conversation history with a specific user by user_id (with optional max_id)"""
-        result = await client.get_dm_history(user_id, max_id=max_id)
-        messages = []
-        for message in result:
-            messages.append({
-                "id": getattr(message, "id", None),
-                "text": getattr(message, "text", None),
-                "time": str(getattr(message, "time", "")),
-                "sender_id": getattr(message, "sender_id", None),
-                "recipient_id": getattr(message, "recipient_id", None),
-                "attachment": getattr(message, "attachment", None)
-            })
-        return messages
+        try:
+            result = await client.get_dm_history(user_id, max_id=max_id)
+            if not result:
+                return [{"success": False, "error": "No DM history found"}]
+            messages = []
+            for message in result:
+                messages.append({
+                    "id": getattr(message, "id", None),
+                    "text": getattr(message, "text", None),
+                    "time": str(getattr(message, "time", "")),
+                    "sender_id": getattr(message, "sender_id", None),
+                    "recipient_id": getattr(message, "recipient_id", None),
+                    "attachment": getattr(message, "attachment", None)
+                })
+            return messages
+        except Exception as e:
+            return [{"success": False, "error": str(e)}]
 
     async def _get_friends_ids(self, client: Client, user_id: str = None, screen_name: str = None, count: int = 5000) -> list:
-        """Fetch the IDs of the friends (following users) of a specified user (by user_id or screen_name)"""
-        result = await client.get_friends_ids(user_id=user_id, screen_name=screen_name, count=count)
-        ids = list(result) if result else []
-        return ids
+        try:
+            result = await client.get_friends_ids(user_id=user_id, screen_name=screen_name, count=count)
+            if not result:
+                return [{"success": False, "error": "No friends IDs found"}]
+            ids = list(result) if result else []
+            return ids
+        except Exception as e:
+            return [{"success": False, "error": str(e)}]
 
     async def _get_user_followers(self, client: Client, user_id: str, count: int = 20) -> list:
-        """Retrieve a list of followers for a given user by user_id"""
-        result = await client.get_user_followers(user_id, count=count)
-        followers = []
-        for user in result:
-            followers.append({
-                "id": getattr(user, "id", None),
-                "username": getattr(user, "screen_name", None),
-                "name": getattr(user, "name", None),
-                "description": getattr(user, "description", None),
-                "followers_count": getattr(user, "followers_count", None),
-                "following_count": getattr(user, "following_count", None),
-                "tweet_count": getattr(user, "statuses_count", None),
-                "verified": getattr(user, "verified", None),
-                "created_at": str(getattr(user, "created_at", ""))
-            })
-        return followers
+        try:
+            result = await client.get_user_followers(user_id, count=count)
+            if not result:
+                return [{"success": False, "error": "No followers found"}]
+            followers = []
+            for user in result:
+                followers.append({
+                    "id": getattr(user, "id", None),
+                    "username": getattr(user, "screen_name", None),
+                    "name": getattr(user, "name", None),
+                    "description": getattr(user, "description", None),
+                    "followers_count": getattr(user, "followers_count", None),
+                    "following_count": getattr(user, "following_count", None),
+                    "tweet_count": getattr(user, "statuses_count", None),
+                    "verified": getattr(user, "verified", None),
+                    "created_at": str(getattr(user, "created_at", ""))
+                })
+            return followers
+        except Exception as e:
+            return [{"success": False, "error": str(e)}]
 
     async def _unlock(self, client: Client) -> dict:
-        """Unlock the account using the provided CAPTCHA solver."""
-        result = await client.unlock()
-        return {"success": True, "result": str(result)}
+        try:
+            result = await client.unlock()
+            if not result:
+                return {"success": False, "error": "Failed to unlock account"}
+            return {"success": True, "result": str(result)}
+        except Exception as e:
+            return {"success": False, "error": str(e)}
 
     async def _get_cookies(self, client: Client) -> dict:
-        """Get the current session cookies."""
-        cookies = client.get_cookies() if hasattr(client, 'get_cookies') else {}
-        return cookies
+        try:
+            cookies = client.get_cookies() if hasattr(client, 'get_cookies') else {}
+            if not cookies:
+                return {"success": False, "error": "No cookies found"}
+            return cookies
+        except Exception as e:
+            return {"success": False, "error": str(e)}
 
     async def _set_cookies(self, cookies: dict, clear_cookies: bool = False) -> dict:
-        """Set cookies for the client session."""
-        client = Client('en-US')
-        client.set_cookies(cookies, clear_cookies=clear_cookies)
-        return {"success": True, "cookies_set": list(cookies.keys()), "clear_cookies": clear_cookies}
+        try:
+            client = Client('en-US')
+            client.set_cookies(cookies, clear_cookies=clear_cookies)
+            return {"success": True, "cookies_set": list(cookies.keys()), "clear_cookies": clear_cookies}
+        except Exception as e:
+            return {"success": False, "error": str(e)}
 
     async def run(self):
         async with stdio_server() as (read_stream, write_stream):
